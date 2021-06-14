@@ -12,7 +12,7 @@ RET=""
 DEBUG="1"
 F_DEBUG="/root/cafe-firstboot.debug"
 TAG="2004-412-1"
-REPOSITORY="https://raw.githubusercontent.com/frqtech/idp-ubnt-2004/main/"
+REPOSITORY="https://raw.githubusercontent.com/frqtech/idp-ubnt-2004/main"
 
 function cleanup {
 	cp /etc/shadow.original /etc/shadow
@@ -286,7 +286,7 @@ function main {
    	TRY=1
    	
    	while [ ${TRY} -le ${THRESHOLD} ] ; do
-	    NETTEST=`curl -s ${REPOSITORY}/network.text`
+	    NETTEST=`curl -s ${REPOSITORY}/network.test`
    		if [ "${NETTEST}" = "Network test OK." ] ; then
    			apt update
    			apt dist-upgrade -y
