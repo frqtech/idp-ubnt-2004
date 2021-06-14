@@ -12,7 +12,7 @@ RET=""
 DEBUG="1"
 F_DEBUG="/root/cafe-firstboot.debug"
 TAG="2004-412-1"
-REPOSITORY="https://github.com/frqtech/idp-ubnt-2004"
+REPOSITORY="https://raw.githubusercontent.com/frqtech/idp-ubnt-2004/main/"
 
 function cleanup {
 	cp /etc/shadow.original /etc/shadow
@@ -252,27 +252,22 @@ function main {
 			DNS="${DNS1}"
 		fi
 
-		cat > /etc/netplan/01-netcfg.yaml <<-EOF		
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    ${INTERFACE}:
-      addresses: [${IP}/${MASK}]
-      gateway4: ${GATEWAY}
-      nameservers:
-        addresses: [${DNS}]
-EOF
+#		cat > /etc/netplan/01-netcfg.yaml <<-EOF		
+# network:
+#   version: 2
+#   renderer: networkd
+#   ethernets:
+#     ${INTERFACE}:
+#       addresses: [${IP}/${MASK}]
+#       gateway4: ${GATEWAY}
+#       nameservers:
+#         addresses: [${DNS}]
+# EOF
 
-		echo "${HN}" > /etc/hostname
-
-		cat > /etc/hosts <<-EOF
-127.0.0.1	localhost
-${IP}	${HN}.${HN_DOMAIN}	${HN}
-EOF
+		hostnamectl set-hostname ${HN}.${HN_DOMAIN}
 
 	# Ajuste Stub DNS
-	ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+#   ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 	fi
 
