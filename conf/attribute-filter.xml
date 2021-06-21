@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<AttributeFilterPolicyGroup id="ShibbolethFilterPolicy"
+    xmlns="urn:mace:shibboleth:2.0:afp"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mace:shibboleth:2.0:afp http://shibboleth.net/schema/idp/shibboleth-afp.xsd">
+
+    <AttributeFilterPolicy id="releaseToAnyone">
+
+        <PolicyRequirementRule xsi:type="ANY"/>
+
+        <AttributeRule attributeID="eduPersonTargetedID">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+    </AttributeFilterPolicy>
+
+    <AttributeFilterPolicy id="releaseToChimarraoOrCafe">
+
+        <PolicyRequirementRule xsi:type="OR">
+            <Rule value="https://sp.rnp.br/aacli" xsi:type="Requester" />
+            <Rule groupID="urn:mace:shibboleth:cafe" xsi:type="InEntityGroup" />
+            <Rule groupID="urn:mace:shibboleth:cafe:chimarrao" xsi:type="InEntityGroup" />
+        </PolicyRequirementRule>
+
+        <AttributeRule attributeID="eduPersonPrincipalName">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="givenName">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="surName">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="commonName">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="displayName">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="mail">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="eduPersonEntitlement">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="brEduAffiliationType">
+            <PermitValueRule xsi:type="OR">
+                <Rule ignoreCase="true" value="student" xsi:type="Value" />
+                <Rule ignoreCase="true" value="faculty" xsi:type="Value" />
+                <Rule ignoreCase="true" value="employee" xsi:type="Value" />
+                <Rule ignoreCase="true" value="alum" xsi:type="Value" />
+                <Rule ignoreCase="true" value="other" xsi:type="Value" />
+                <Rule ignoreCase="true" value="position" xsi:type="Value" />
+                <Rule ignoreCase="true" value="scholarshipAwardee" xsi:type="Value" />
+            </PermitValueRule>
+        </AttributeRule>
+
+        <AttributeRule attributeID="eduPersonAffiliation">
+            <PermitValueRule xsi:type="OR">
+                <Rule ignoreCase="true" value="faculty" xsi:type="Value" />
+                <Rule ignoreCase="true" value="student" xsi:type="Value" />
+                <Rule ignoreCase="true" value="staff" xsi:type="Value" />
+                <Rule ignoreCase="true" value="alum" xsi:type="Value" />
+                <Rule ignoreCase="true" value="member" xsi:type="Value" />
+                <Rule ignoreCase="true" value="affiliate" xsi:type="Value" />
+                <Rule ignoreCase="true" value="employee" xsi:type="Value" />
+                <Rule ignoreCase="true" value="library-walk-in" xsi:type="Value" />
+            </PermitValueRule>
+        </AttributeRule>
+
+    </AttributeFilterPolicy>
+
+    <AttributeFilterPolicy id="releaseToRNP">
+
+        <PolicyRequirementRule xsi:type="OR">
+            <Rule value="https://sp.rnp.br/cafe" xsi:type="Requester" />
+            <Rule value="https://sp.rnp.br/chimarrao" xsi:type="Requester" />
+            <Rule value="https://p1.icpedu.rnp.br/shibboleth-sp2" xsi:type="Requester" />
+            <Rule value="https://pessoal.icpedu.rnp.br/shibboleth-sp2" xsi:type="Requester" />
+            <Rule value="https://homolog.eduid.rnp.br/shibboleth-sp2" xsi:type="Requester" />
+        </PolicyRequirementRule>
+
+        <AttributeRule attributeID="schacDateOfBirth">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="brPersonCPF">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+    </AttributeFilterPolicy>
+
+    <AttributeFilterPolicy id="releaseEduGAIN">
+
+        <PolicyRequirementRule xsi:type="OR">
+            <Rule value="https://sp.rnp.br/aacli" xsi:type="Requester" />
+            <Rule groupID="urn:mace:switch.ch:SWITCHaai:interfederation" xsi:type="InEntityGroup" />
+        </PolicyRequirementRule>
+
+        <AttributeRule attributeID="eduPersonPrincipalName">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="mail">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+        <AttributeRule attributeID="eduPersonEntitlement">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+
+    </AttributeFilterPolicy>
+
+</AttributeFilterPolicyGroup>
