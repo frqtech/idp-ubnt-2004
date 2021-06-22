@@ -196,7 +196,10 @@
 #
 # PACOTES
 #
-        apt install -y apache2 libapache2-mod-xforward jetty9
+        wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+        echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+        apt update
+        apt install -y apache2 libapache2-mod-xforward jetty9 rsyslog filebeat
 
 #
 # OPENSSL - arquivo de config
@@ -232,6 +235,13 @@ localityName_default = ${CITY}
 stateOrProvinceName_default = ${STATE}
 countryName_default = BR
 commonName_default = ${HN}.${HN_DOMAIN}
+EOF
+
+#
+# SHIB - admin-properties
+#
+        cat > ${SRCDIR}/conf/admin/admin.properties <<-EOF
+
 EOF
 
 #
@@ -311,6 +321,44 @@ EOF
 # SHIB - idp-properties
 #
         cat  > ${SRCDIR}/conf/idp.properties <<-EOF
+idp.searchForProperties= true
+
+idp.additionalProperties= /credentials/secrets.properties
+
+idp.entityID= https://${HN}.${HN_DOMAIN}/idp/shibboleth
+
+idp.scope= ${DOMAIN}
+ 
+idp.csrf.enabled=true
+
+idp.sealer.storeResource=%{idp.home}/credentials/sealer.jks
+idp.sealer.versionResource=%{idp.home}/credentials/sealer.kver
+
+idp.signing.key=%{idp.home}/credentials/idp.key
+idp.signing.cert=%{idp.home}/credentials/idp.crt
+idp.encryption.key=%{idp.home}/credentials/idp.key
+idp.encryption.cert=%{idp.home}/credentials/idp.crt
+
+idp.encryption.config=shibboleth.EncryptionConfiguration.GCM
+
+idp.trust.signatures=shibboleth.ExplicitKeySignatureTrustEngine
+
+idp.storage.htmlLocalStorage=true
+
+idp.session.trackSPSessions=true
+idp.session.secondaryServiceIndex=true
+
+idp.bindings.inMetadataOrder=false
+
+idp.ui.fallbackLanguages=pt-br,en
+
+idp.fticks.federation = CAFE
+idp.fticks.algorithm = SHA-256
+idp.fticks.salt = ${FTICKSSALT}
+idp.fticks.loghost= localhost
+idp.fticks.logport= 514
+
+idp.audit.shortenBindings=true
 EOF
 
 #
@@ -403,6 +451,126 @@ EOF
 #
 # FTICKS - Filebeat / rsyslog
 #
+        cat > /etc/rsyslog.conf <<-EOF
+#  /etc/rsyslog.conf    Configuration file for rsyslog.
+#
+#                       For more information see
+#                       /usr/share/doc/rsyslog-doc/html/rsyslog_conf.html
+#
+#  Default logging rules can be found in /etc/rsyslog.d/50-default.conf
+
+#################
+#### MODULES ####
+#################
+
+#module(load="imuxsock") # provides support for local system logging
+#module(load="immark")  # provides --MARK-- message capability
+
+# provides UDP syslog reception
+module(load="imudp")
+input(type="imudp" port="514")
+
+# provides TCP syslog reception
+module(load="imtcp")
+input(type="imtcp" port="514")
+
+# provides kernel logging support and enable non-kernel klog messages
+module(load="imklog" permitnonkernelfacility="on")
+
+###########################
+#### GLOBAL DIRECTIVES ####
+###########################
+
+#
+# Use traditional timestamp format.
+# To enable high precision timestamps, comment out the following line.
+#
+#\$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
+
+# Filter duplicated messages
+\$RepeatedMsgReduction on
+
+#
+# Set the default permissions for all log files.
+#
+\$FileOwner syslog
+\$FileGroup adm
+\$FileCreateMode 0640
+\$DirCreateMode 0755
+\$Umask 0022
+\$PrivDropToUser syslog
+\$PrivDropToGroup syslog
+
+#
+# Where to place spool and state files
+#
+\$WorkDirectory /var/spool/rsyslog
+
+#
+# Include all config files in /etc/rsyslog.d/
+#
+\$IncludeConfig /etc/rsyslog.d/*.conf
+EOF
+
+        cat > /etc/rsyslog.d/01-fticks.conf <<-EOF
+:msg, contains, "Shibboleth-FTICKS F-TICKS/CAFE" /var/log/fticks.log
+:msg, contains, "Shibboleth-FTICKS F-TICKS/CAFE" ~
+EOF
+
+        touch /var/log/fticks.log
+        chmod 0640 /var/log/fticks.log
+        chown syslog:adm /var/log/fticks.log
+        systemctl restart rsyslog
+        cat > /etc/filebeat/filebeat.yml <<-EOF
+#============================ Filebeat inputs ================================
+
+filebeat.inputs:
+
+- type: log
+
+  enabled: true
+
+  paths:
+    - /var/log/fticks.log
+
+#============================= Filebeat modules ==============================
+
+filebeat.config.modules:
+
+  path: \${path.config}/modules.d/*.yml
+
+  reload.enabled: false
+
+#----------------------------- Logstash output --------------------------------
+
+output.logstash:
+  hosts: ["138.121.69.126:5044"]
+
+#================================ Processors ==================================
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+EOF
+
+        systemctl restart filebeat
+        systemctl enable filebeat
+
+        cat > /etc/logrotate.d/fticks <<-EOF
+/var/log/fticks.log {
+    su root root
+    create 0640 syslog adm
+    daily
+    rotate 180
+    compress
+    nodelaycompress
+    dateext
+    missingok
+    postrotate
+        systemctl restart rsyslog
+    endscript
+}
+EOF
 
 #
 # FAIL2BAN
