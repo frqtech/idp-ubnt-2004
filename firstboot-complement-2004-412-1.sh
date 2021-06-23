@@ -238,13 +238,6 @@ commonName_default = ${HN}.${HN_DOMAIN}
 EOF
 
 #
-# SHIB - admin-properties
-#
-        cat > ${SRCDIR}/conf/admin/admin.properties <<-EOF
-
-EOF
-
-#
 # SHIB - ldap-properties
 #
         cat > ${SRCDIR}/conf/ldap.properties <<-EOF
@@ -359,12 +352,6 @@ idp.fticks.loghost= localhost
 idp.fticks.logport= 514
 
 idp.audit.shortenBindings=true
-EOF
-
-#
-# SHIB - saml-nameid-properties
-#
-        cat  > ${SRCDIR}/conf/saml-nameid.properties <<-EOF
 EOF
 
 #
@@ -580,9 +567,29 @@ EOF
 # SHIB - Instalação
 #
 
+        ${SRCDIR}/bin/install.sh \
+        -Didp.src.dir=${SRCDIR} \
+        -Didp.target.dir=/opt/shibboleth-idp \
+        -Didp.sealer.password=changeit \
+        -Didp.keystore.password=changeit \
+        -Didp.conf.filemode=644 \
+        -Didp.host.name=${HN}.${HN_DOMAIN} \
+        -Didp.scope=${DOMAIN} \
+        -Didp.entityID=https://${HN}.${HN_DOMAIN}/idp/shibboleth
+
 #
 # OpenSSL - Geração de certificados shib
 #
+
+        cd /opt/shibboleth-idp/credentials/
+        rm -f idp*
+        openssl genrsa -out idp.key 2048
+        openssl req -batch -new -x509 -nodes -days 1095 -sha256 -key idp.key -set_serial 00 -config /tmp/openssl.cnf -out idp.crt
+        if [ ${DEBUG} -eq 1 ] ; then
+            echo "" 
+            echo "Certificado Shibboleth" | tee -a ${F_DEBUG}
+            openssl x509 -in /opt/shibboleth-idp/credentials/idp.crt -text -noout >> /root/cafe-firstboot.debug | tee -a ${F_DEBUG}
+        fi
 
 #
 # SHIB - Ajuste arquivo de metadados
