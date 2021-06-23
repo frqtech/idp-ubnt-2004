@@ -311,53 +311,9 @@ idp.attribute.resolver.LDAP.searchFilter        = (${LDAPATTR}=$resolutionContex
 EOF
 
 #
-# SHIB - idp-properties
-#
-        cat  > ${SRCDIR}/conf/idp.properties <<-EOF
-idp.searchForProperties= true
-
-idp.additionalProperties= /credentials/secrets.properties
-
-idp.entityID= https://${HN}.${HN_DOMAIN}/idp/shibboleth
-
-idp.scope= ${DOMAIN}
- 
-idp.csrf.enabled=true
-
-idp.sealer.storeResource=%{idp.home}/credentials/sealer.jks
-idp.sealer.versionResource=%{idp.home}/credentials/sealer.kver
-
-idp.signing.key=%{idp.home}/credentials/idp.key
-idp.signing.cert=%{idp.home}/credentials/idp.crt
-idp.encryption.key=%{idp.home}/credentials/idp.key
-idp.encryption.cert=%{idp.home}/credentials/idp.crt
-
-idp.encryption.config=shibboleth.EncryptionConfiguration.GCM
-
-idp.trust.signatures=shibboleth.ExplicitKeySignatureTrustEngine
-
-idp.storage.htmlLocalStorage=true
-
-idp.session.trackSPSessions=true
-idp.session.secondaryServiceIndex=true
-
-idp.bindings.inMetadataOrder=false
-
-idp.ui.fallbackLanguages=pt-br,en
-
-idp.fticks.federation = CAFE
-idp.fticks.algorithm = SHA-256
-idp.fticks.salt = ${FTICKSSALT}
-idp.fticks.loghost= localhost
-idp.fticks.logport= 514
-
-idp.audit.shortenBindings=true
-EOF
-
-#
 # SHIB - secrets.properties
 #
-        cat  > ${SRCDIR}/conf/credentials/secrets.properties <<-EOF
+        cat  > ${SRCDIR}/credentials/secrets.properties <<-EOF
 # Access to internal AES encryption key
 #idp.sealer.storePassword = changeit
 #idp.sealer.keyPassword = changeit
@@ -576,6 +532,51 @@ EOF
         -Didp.host.name=${HN}.${HN_DOMAIN} \
         -Didp.scope=${DOMAIN} \
         -Didp.entityID=https://${HN}.${HN_DOMAIN}/idp/shibboleth
+
+#
+# SHIB - idp-properties
+#
+
+        cat  > /opt/shibboleth-idp/conf/idp.properties <<-EOF
+idp.searchForProperties= true
+
+idp.additionalProperties= /credentials/secrets.properties
+
+idp.entityID= https://${HN}.${HN_DOMAIN}/idp/shibboleth
+
+idp.scope= ${DOMAIN}
+ 
+idp.csrf.enabled=true
+
+idp.sealer.storeResource=%{idp.home}/credentials/sealer.jks
+idp.sealer.versionResource=%{idp.home}/credentials/sealer.kver
+
+idp.signing.key=%{idp.home}/credentials/idp.key
+idp.signing.cert=%{idp.home}/credentials/idp.crt
+idp.encryption.key=%{idp.home}/credentials/idp.key
+idp.encryption.cert=%{idp.home}/credentials/idp.crt
+
+idp.encryption.config=shibboleth.EncryptionConfiguration.GCM
+
+idp.trust.signatures=shibboleth.ExplicitKeySignatureTrustEngine
+
+idp.storage.htmlLocalStorage=true
+
+idp.session.trackSPSessions=true
+idp.session.secondaryServiceIndex=true
+
+idp.bindings.inMetadataOrder=false
+
+idp.ui.fallbackLanguages=pt-br,en
+
+idp.fticks.federation = CAFE
+idp.fticks.algorithm = SHA-256
+idp.fticks.salt = ${FTICKSSALT}
+idp.fticks.loghost= localhost
+idp.fticks.logport= 514
+
+idp.audit.shortenBindings=true
+EOF
 
 #
 # OpenSSL - Geração de certificados shib
