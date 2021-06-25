@@ -80,7 +80,7 @@
     </AttributeDefinition>
 
     <!-- CAFe - brEduAffiliationType -->
-    <AttributeDefinition id="schacDateOfBirth" xsi:type="Simple">
+    <AttributeDefinition id="brEduAffiliationType" xsi:type="Simple">
         <InputDataConnector ref="dcLDAP" attributeNames="brEduAffiliationType" />
     </AttributeDefinition>
 
@@ -106,7 +106,7 @@
                 %{idp.attribute.resolver.LDAP.searchFilter}
             ]]>
         </FilterTemplate>
-        <ReturnAttributes>%{idp.authn.LDAP.returnAttributes} mail ufrgsCPF ufrgsDataNascimento ufrgsPrimeiroNome ufrgsRestoNome ufrgsCodTipoVinculo ufrgsTipoVinculo ufrgsCodOrgaoExercicio ufrgsOrgaoExercicio ufrgsCodOrgaoLotacao ufrgsOrgaoLotacao ufrgsCodCurso ufrgsCurso ufrgsDataIngresso ufrgsDataAfastamento</ReturnAttributes>
+        <ReturnAttributes>%{idp.authn.LDAP.returnAttributes} mail cn givenName sn brPersonCPF schacDateOfBirth</ReturnAttributes>
     </DataConnector>
 
     <DataConnector id="dcLDAPBrEduPerson" xsi:type="LDAPDirectory" ldapURL="%{idp.attribute.resolver.LDAP.ldapURL}" baseDN="%{idp.attribute.resolver.LDAP.baseDN}" principal="%{idp.attribute.resolver.LDAP.bindDN}" principalCredential="%{idp.attribute.resolver.LDAP.bindDNCredential}" useStartTLS="%{idp.attribute.resolver.LDAP.useStartTLS:true}" noResultIsError="%{idp.attribute.resolver.LDAP.noResultsIsError:false}" multipleResultsIsError="%{idp.attribute.resolver.LDAP.multipleResultsIsError:true}">

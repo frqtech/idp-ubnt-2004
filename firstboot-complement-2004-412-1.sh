@@ -276,14 +276,15 @@ EOF
 #
         echo "" 
         echo "Obtendo arquivos de configuração estáticos"
-        wget ${REPOSITORY}/conf/attribute-filter.xml -O ${SRCDIR}/conf/attribute-filter.xml
-        wget ${REPOSITORY}/conf/attribute-resolver.xml -O ${SRCDIR}/conf/attribute-resolver.xml
-        wget ${REPOSITORY}/conf/metadata-providers.xml -O ${SRCDIR}/conf/metadata-providers.xml
-        wget ${REPOSITORY}/main/conf/admin/admin.properties -O ${SRCDIR}/conf/admin/admin.properties
-        wget ${REPOSITORY}/conf/attributes/brEduPerson.xml -O ${SRCDIR}/conf/attributes/brEduPerson.xml
-        wget ${REPOSITORY}/attributes/default-rules.xml -O ${SRCDIR}/conf/attributes/default-rules.xml
-        wget ${REPOSITORY}/conf/attributes/schac.xml -O ${SRCDIR}/conf/attributes/schac.xml
-        wget ${REPOSITORY}/conf/attributes/custom/eduPersonTargetedID.properties -O ${SRCDIR}/conf/attributes/custom/eduPersonTargetedID.properties
+        wget ${REPOSITORY}/conf/attribute-filter.xml -O ${SHIBDIR}/conf/attribute-filter.xml
+        wget ${REPOSITORY}/conf/attribute-resolver.xml -O ${SHIBDIR}/conf/attribute-resolver.xml
+        wget ${REPOSITORY}/conf/metadata-providers.xml -O ${SHIBDIR}/conf/metadata-providers.xml
+        wget ${REPOSITORY}/conf/saml-nameid.xml -O ${SHIBDIR}/conf/saml-nameid.xml
+        wget ${REPOSITORY}/conf/admin/admin.properties -O ${SHIBDIR}/conf/admin/admin.properties
+        wget ${REPOSITORY}/conf/attributes/brEduPerson.xml -O ${SHIBDIR}/conf/attributes/brEduPerson.xml
+        wget ${REPOSITORY}/conf/attributes/default-rules.xml -O ${SHIBDIR}/conf/attributes/default-rules.xml
+        wget ${REPOSITORY}/conf/attributes/schac.xml -O ${SHIBDIR}/conf/attributes/schac.xml
+        wget ${REPOSITORY}/conf/attributes/custom/eduPersonTargetedID.properties -O ${SHIBDIR}/conf/attributes/custom/eduPersonTargetedID.properties
 
 #
 # SHIB - ldap-properties
@@ -301,9 +302,9 @@ idp.authn.LDAP.authenticator                    = bindSearchAuthenticator
 idp.authn.LDAP.ldapURL                          = ${LDAPSERVERPROTO}${LDAPSERVER}:${LDAPSERVERPORT}
 idp.authn.LDAP.useStartTLS                      = false
 # Time in milliseconds that connects will block
-#idp.authn.LDAP.connectTimeout                  = PT3S
+idp.authn.LDAP.connectTimeout                   = PT3S
 # Time in milliseconds to wait for responses
-#idp.authn.LDAP.responseTimeout                 = PT3S
+idp.authn.LDAP.responseTimeout                  = PT3S
 # Connection strategy to use when multiple URLs are supplied, either ACTIVE_PASSIVE, ROUND_ROBIN, RANDOM
 #idp.authn.LDAP.connectionStrategy              = ACTIVE_PASSIVE
 
@@ -367,8 +368,8 @@ EOF
         echo "Configurando secrets.properties"
         cat  > ${SHIBDIR}/credentials/secrets.properties <<-EOF
 # Access to internal AES encryption key
-#idp.sealer.storePassword = changeit
-#idp.sealer.keyPassword = changeit
+idp.sealer.storePassword = changeit
+idp.sealer.keyPassword = changeit
 
 # Default access to LDAP authn and attribute stores.
 idp.authn.LDAP.bindDNCredential              = ${LDAPPWD}
@@ -647,6 +648,7 @@ EOF
         echo "Configurando Jetty"
         sed -i 's/^ReadWritePaths=\/var\/lib\/jetty9\/$/ReadWritePaths=\/var\/lib\/jetty9\/ \/opt\/shibboleth-idp\/credentials\/ \/opt\/shibboleth-idp\/logs\/ \/opt\/shibboleth-idp\/metadata\//' /lib/systemd/system/jetty9.service
         systemctl daemon-reload
+        sed -i 's/^--module=deploy,http,jsp,jstl,websocket,ext,resources$/--module=deploy,http,jsp,jstl,websocket,ext,resources,http-forwarded/' /etc/jetty9/start.ini
 
         # Corrige permissões
         chown -R jetty:jetty ${SHIBDIR}/{credentials,logs,metadata}
