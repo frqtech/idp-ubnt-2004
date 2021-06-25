@@ -196,6 +196,8 @@
 #
 # PACOTES
 #
+        echo "" 
+        echo "Instalando pacotes"
         wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
         echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
         apt update
@@ -204,6 +206,8 @@
 #
 # OPENSSL - arquivo de config
 #
+        echo "" 
+        echo "Gerando arquivo de configuração do OpenSSL"
         cat > /tmp/openssl.cnf <<-EOF
 [ req ]
 default_bits = 2048 # Size of keys
@@ -238,9 +242,55 @@ commonName_default = ${HN}.${HN_DOMAIN}
 EOF
 
 #
+# SHIB - Instalação
+#
+        echo "" 
+        echo "Instalando Shibboleth IDP"
+        ${SRCDIR}/bin/install.sh \
+        -Didp.src.dir=${SRCDIR} \
+        -Didp.target.dir=${SHIBDIR} \
+        -Didp.sealer.password=changeit \
+        -Didp.keystore.password=changeit \
+        -Didp.conf.filemode=644 \
+        -Didp.host.name=${HN}.${HN_DOMAIN} \
+        -Didp.scope=${DOMAIN} \
+        -Didp.entityID=https://${HN}.${HN_DOMAIN}/idp/shibboleth
+
+#
+# OpenSSL - Geração de certificados shib
+#
+        echo "" 
+        echo "Gerando certificado digital para o Shibboleth IDP"
+        cd ${SHIBDIR}/credentials/
+        rm -f idp*
+        openssl genrsa -out idp.key 2048
+        openssl req -batch -new -x509 -nodes -days 1095 -sha256 -key idp.key -set_serial 00 -config /tmp/openssl.cnf -out idp.crt
+        if [ ${DEBUG} -eq 1 ] ; then
+            echo "" 
+            echo "Certificado Shibboleth" | tee -a ${F_DEBUG}
+            openssl x509 -in ${SHIBDIR}/credentials/idp.crt -text -noout >> /root/cafe-firstboot.debug | tee -a ${F_DEBUG}
+        fi
+
+#
+# SHIB - Arquivos estáticos
+#
+        echo "" 
+        echo "Obtendo arquivos de configuração estáticos"
+        wget ${REPOSITORY}/conf/attribute-filter.xml -O ${SRCDIR}/conf/attribute-filter.xml
+        wget ${REPOSITORY}/conf/attribute-resolver.xml -O ${SRCDIR}/conf/attribute-resolver.xml
+        wget ${REPOSITORY}/conf/metadata-providers.xml -O ${SRCDIR}/conf/metadata-providers.xml
+        wget ${REPOSITORY}/main/conf/admin/admin.properties -O ${SRCDIR}/conf/admin/admin.properties
+        wget ${REPOSITORY}/conf/attributes/brEduPerson.xml -O ${SRCDIR}/conf/attributes/brEduPerson.xml
+        wget ${REPOSITORY}/attributes/default-rules.xml -O ${SRCDIR}/conf/attributes/default-rules.xml
+        wget ${REPOSITORY}/conf/attributes/schac.xml -O ${SRCDIR}/conf/attributes/schac.xml
+        wget ${REPOSITORY}/conf/attributes/custom/eduPersonTargetedID.properties -O ${SRCDIR}/conf/attributes/custom/eduPersonTargetedID.properties
+
+#
 # SHIB - ldap-properties
 #
-        cat > ${SRCDIR}/conf/ldap.properties <<-EOF
+        echo "" 
+        echo "Configurando ldap.properties"
+        cat > ${SHIBDIR}/conf/ldap.properties <<-EOF
 # LDAP authentication (and possibly attribute resolver) configuration
 # Note, this doesn't apply to the use of JAAS authentication via LDAP
 
@@ -313,7 +363,9 @@ EOF
 #
 # SHIB - secrets.properties
 #
-        cat  > ${SRCDIR}/credentials/secrets.properties <<-EOF
+        echo "" 
+        echo "Configurando secrets.properties"
+        cat  > ${SHIBDIR}/credentials/secrets.properties <<-EOF
 # Access to internal AES encryption key
 #idp.sealer.storePassword = changeit
 #idp.sealer.keyPassword = changeit
@@ -329,8 +381,68 @@ idp.cafe.computedIDsalt = ${COMPUTEDIDSALT}
 EOF
 
 #
+# SHIB - idp-properties
+#
+        echo "" 
+        echo "Configurando idp.properties"
+        cat  > ${SHIBDIR}/conf/idp.properties <<-EOF
+idp.searchForProperties= true
+
+idp.additionalProperties= /credentials/secrets.properties
+
+idp.entityID= https://${HN}.${HN_DOMAIN}/idp/shibboleth
+
+idp.scope= ${DOMAIN}
+ 
+idp.csrf.enabled=true
+
+idp.sealer.storeResource=%{idp.home}/credentials/sealer.jks
+idp.sealer.versionResource=%{idp.home}/credentials/sealer.kver
+
+idp.signing.key=%{idp.home}/credentials/idp.key
+idp.signing.cert=%{idp.home}/credentials/idp.crt
+idp.encryption.key=%{idp.home}/credentials/idp.key
+idp.encryption.cert=%{idp.home}/credentials/idp.crt
+
+idp.encryption.config=shibboleth.EncryptionConfiguration.GCM
+
+idp.trust.signatures=shibboleth.ExplicitKeySignatureTrustEngine
+
+idp.storage.htmlLocalStorage=true
+
+idp.session.trackSPSessions=true
+idp.session.secondaryServiceIndex=true
+
+idp.bindings.inMetadataOrder=false
+
+idp.ui.fallbackLanguages=pt-br,en
+
+idp.fticks.federation = CAFE
+idp.fticks.algorithm = SHA-256
+idp.fticks.salt = ${FTICKSSALT}
+idp.fticks.loghost= localhost
+idp.fticks.logport= 514
+
+idp.audit.shortenBindings=true
+EOF
+
+#
+# SHIB - Ajuste arquivo de metadados
+#
+
+#TODO
+
+#
+# SHIB - Personalização layout
+#
+
+#TODO
+
+#
 # APACHE - config site, modules e certificados - 01-idp.conf
 #
+        echo "" 
+        echo "Configurando Apache"
         cat > /etc/apache2/sites-available/01-idp.conf <<-EOF
 <VirtualHost ${IP}:80>
 
@@ -388,12 +500,10 @@ EOF
         systemctl restart apache2
 
 #
-# CAFE - Personalização layout
-#
-
-#
 # FTICKS - Filebeat / rsyslog
 #
+        echo "" 
+        echo "Configurando FTICKS"
         cat > /etc/rsyslog.conf <<-EOF
 #  /etc/rsyslog.conf    Configuration file for rsyslog.
 #
@@ -520,83 +630,6 @@ EOF
 #
 
 #
-# SHIB - Instalação
-#
-
-        ${SRCDIR}/bin/install.sh \
-        -Didp.src.dir=${SRCDIR} \
-        -Didp.target.dir=/opt/shibboleth-idp \
-        -Didp.sealer.password=changeit \
-        -Didp.keystore.password=changeit \
-        -Didp.conf.filemode=644 \
-        -Didp.host.name=${HN}.${HN_DOMAIN} \
-        -Didp.scope=${DOMAIN} \
-        -Didp.entityID=https://${HN}.${HN_DOMAIN}/idp/shibboleth
-
-#
-# SHIB - idp-properties
-#
-
-        cat  > /opt/shibboleth-idp/conf/idp.properties <<-EOF
-idp.searchForProperties= true
-
-idp.additionalProperties= /credentials/secrets.properties
-
-idp.entityID= https://${HN}.${HN_DOMAIN}/idp/shibboleth
-
-idp.scope= ${DOMAIN}
- 
-idp.csrf.enabled=true
-
-idp.sealer.storeResource=%{idp.home}/credentials/sealer.jks
-idp.sealer.versionResource=%{idp.home}/credentials/sealer.kver
-
-idp.signing.key=%{idp.home}/credentials/idp.key
-idp.signing.cert=%{idp.home}/credentials/idp.crt
-idp.encryption.key=%{idp.home}/credentials/idp.key
-idp.encryption.cert=%{idp.home}/credentials/idp.crt
-
-idp.encryption.config=shibboleth.EncryptionConfiguration.GCM
-
-idp.trust.signatures=shibboleth.ExplicitKeySignatureTrustEngine
-
-idp.storage.htmlLocalStorage=true
-
-idp.session.trackSPSessions=true
-idp.session.secondaryServiceIndex=true
-
-idp.bindings.inMetadataOrder=false
-
-idp.ui.fallbackLanguages=pt-br,en
-
-idp.fticks.federation = CAFE
-idp.fticks.algorithm = SHA-256
-idp.fticks.salt = ${FTICKSSALT}
-idp.fticks.loghost= localhost
-idp.fticks.logport= 514
-
-idp.audit.shortenBindings=true
-EOF
-
-#
-# OpenSSL - Geração de certificados shib
-#
-
-        cd /opt/shibboleth-idp/credentials/
-        rm -f idp*
-        openssl genrsa -out idp.key 2048
-        openssl req -batch -new -x509 -nodes -days 1095 -sha256 -key idp.key -set_serial 00 -config /tmp/openssl.cnf -out idp.crt
-        if [ ${DEBUG} -eq 1 ] ; then
-            echo "" 
-            echo "Certificado Shibboleth" | tee -a ${F_DEBUG}
-            openssl x509 -in /opt/shibboleth-idp/credentials/idp.crt -text -noout >> /root/cafe-firstboot.debug | tee -a ${F_DEBUG}
-        fi
-
-#
-# SHIB - Ajuste arquivo de metadados
-#
-
-#
 # KEYSTORE - Popular com certificados
 #
 #TODO: Tratar certificados AD
@@ -610,16 +643,18 @@ EOF
 #
 # JETTY - Configuração
 #
+        echo "" 
+        echo "Configurando Jetty"
         sed -i 's/^ReadWritePaths=\/var\/lib\/jetty9\/$/ReadWritePaths=\/var\/lib\/jetty9\/ \/opt\/shibboleth-idp\/credentials\/ \/opt\/shibboleth-idp\/logs\/ \/opt\/shibboleth-idp\/metadata\//' /lib/systemd/system/jetty9.service
         systemctl daemon-reload
 
         # Corrige permissões
-        chown -R jetty:jetty /opt/shibboleth-idp/{credentials,logs,metadata}
+        chown -R jetty:jetty ${SHIBDIR}/{credentials,logs,metadata}
 
         # Configura contexto no Jetty
         cat > /var/lib/jetty9/webapps/idp.xml <<-EOF
 <Configure class="org.eclipse.jetty.webapp.WebAppContext">
-  <Set name="war">/opt/shibboleth-idp/war/idp.war</Set>
+  <Set name="war">${SHIBDIR}/war/idp.war</Set>
   <Set name="contextPath">/idp</Set>
   <Set name="extractWAR">false</Set>
   <Set name="copyWebDir">false</Set>

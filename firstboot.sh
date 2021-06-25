@@ -14,6 +14,7 @@ F_DEBUG="/root/cafe-firstboot.debug"
 TAG="2004-412-1"
 REPOSITORY="https://raw.githubusercontent.com/frqtech/idp-ubnt-2004/main"
 SRCDIR="/root/shibboleth-identity-provider-4.1.2"
+SHIBDIR="/opt/shibboleth-idp"
 
 function cleanup {
     cp /etc/shadow.original /etc/shadow
