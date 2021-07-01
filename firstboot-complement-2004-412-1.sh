@@ -425,6 +425,14 @@ idp.fticks.loghost= localhost
 idp.fticks.logport= 514
 
 idp.audit.shortenBindings=true
+
+#idp.loglevel.idp = DEBUG
+#idp.loglevel.ldap = DEBUG
+#idp.loglevel.messages = DEBUG
+#idp.loglevel.encryption = DEBUG
+#idp.loglevel.opensaml = DEBUG
+#idp.loglevel.props = DEBUG
+#idp.loglevel.httpclient = DEBUG
 EOF
 
 #
