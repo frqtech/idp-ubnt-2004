@@ -436,6 +436,16 @@ idp.audit.shortenBindings=true
 EOF
 
 #
+# SHIB - saml-nameid.properties
+#
+        echo "" 
+        echo "Configurando saml-nameid.properties"
+        cat  > ${SHIBDIR}/conf/saml-nameid.properties <<-EOF
+idp.persistentId.sourceAttribute = ${LDAPATTR}
+idp.persistentId.encoding = BASE32
+EOF
+
+#
 # SHIB - Ajuste arquivo de metadados
 #
 
