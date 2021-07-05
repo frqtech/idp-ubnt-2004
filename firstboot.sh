@@ -254,22 +254,22 @@ function main {
             DNS="${DNS1}"
         fi
 
-#        cat > /etc/netplan/01-netcfg.yaml <<-EOF
-# network:
-#   version: 2
-#   renderer: networkd
-#   ethernets:
-#     ${INTERFACE}:
-#       addresses: [${IP}/${MASK}]
-#       gateway4: ${GATEWAY}
-#       nameservers:
-#         addresses: [${DNS}]
-# EOF
+        cat > /etc/netplan/00-installer-config.yaml <<-EOF
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ${INTERFACE}:
+      addresses: [${IP}/${MASK}]
+      gateway4: ${GATEWAY}
+      nameservers:
+        addresses: [${DNS}]
+EOF
 
         hostnamectl set-hostname ${HN}.${HN_DOMAIN}
 
     # Ajuste Stub DNS
-#   ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+   ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
     fi
 
