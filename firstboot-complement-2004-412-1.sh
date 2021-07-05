@@ -346,7 +346,7 @@ idp.attribute.resolver.LDAP.baseDN              = %{idp.authn.LDAP.baseDN:undefi
 idp.attribute.resolver.LDAP.bindDN              = %{idp.authn.LDAP.bindDN:undefined}
 idp.attribute.resolver.LDAP.useStartTLS         = %{idp.authn.LDAP.useStartTLS:true}
 idp.attribute.resolver.LDAP.trustCertificates   = %{idp.authn.LDAP.trustCertificates:undefined}
-idp.attribute.resolver.LDAP.searchFilter        = (${LDAPATTR}=$resolutionContext.principal)
+idp.attribute.resolver.LDAP.searchFilter        = (${LDAPATTR}=\$resolutionContext.principal)
 
 # LDAP pool configuration, used for both authn and DN resolution
 #idp.pool.LDAP.minSize                          = 3

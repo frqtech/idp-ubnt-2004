@@ -29,7 +29,7 @@
     </AttributeDefinition>
 
     <!-- CAFe - commonName -->
-    <AttributeDefinition id="commonName" xsi:type="Simple">
+    <AttributeDefinition id="cn" xsi:type="Simple">
         <InputDataConnector ref="dcLDAP" attributeNames="cn" />
     </AttributeDefinition>
 
@@ -45,7 +45,7 @@
     </AttributeDefinition>
 
     <!-- CAFe - surName -->
-    <AttributeDefinition id="surName" xsi:type="Simple">
+    <AttributeDefinition id="sn" xsi:type="Simple">
         <InputDataConnector ref="dcLDAP" attributeNames="sn" />
     </AttributeDefinition>
 

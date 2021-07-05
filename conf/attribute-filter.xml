@@ -30,11 +30,11 @@
             <PermitValueRule xsi:type="ANY" />
         </AttributeRule>
 
-        <AttributeRule attributeID="surName">
+        <AttributeRule attributeID="sn">
             <PermitValueRule xsi:type="ANY" />
         </AttributeRule>
 
-        <AttributeRule attributeID="commonName">
+        <AttributeRule attributeID="cn">
             <PermitValueRule xsi:type="ANY" />
         </AttributeRule>
 
