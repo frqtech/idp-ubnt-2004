@@ -81,7 +81,7 @@
 
     <!-- CAFe - brEduAffiliationType -->
     <AttributeDefinition id="brEduAffiliationType" xsi:type="Simple">
-        <InputDataConnector ref="dcLDAP" attributeNames="brEduAffiliationType" />
+        <InputDataConnector ref="dcLDAPBrEduPerson" attributeNames="brEduAffiliationType" />
     </AttributeDefinition>
 
     <!-- CAFe - eduPersonAffiliation -->
