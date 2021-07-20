@@ -52,26 +52,26 @@
 
         <AttributeRule attributeID="brEduAffiliationType">
             <PermitValueRule xsi:type="OR">
-                <Rule ignoreCase="true" value="student" xsi:type="Value" />
-                <Rule ignoreCase="true" value="faculty" xsi:type="Value" />
-                <Rule ignoreCase="true" value="employee" xsi:type="Value" />
-                <Rule ignoreCase="true" value="alum" xsi:type="Value" />
-                <Rule ignoreCase="true" value="other" xsi:type="Value" />
-                <Rule ignoreCase="true" value="position" xsi:type="Value" />
-                <Rule ignoreCase="true" value="scholarshipAwardee" xsi:type="Value" />
+                <Rule caseSenstive="false" xsi:type="Value" value="student" />
+                <Rule caseSenstive="false" xsi:type="Value" value="faculty" />
+                <Rule caseSenstive="false" xsi:type="Value" value="employee" />
+                <Rule caseSenstive="false" xsi:type="Value" value="alum" />
+                <Rule caseSenstive="false" xsi:type="Value" value="other" />
+                <Rule caseSenstive="false" xsi:type="Value" value="position" />
+                <Rule caseSenstive="false" xsi:type="Value" value="scholarshipAwardee" />
             </PermitValueRule>
         </AttributeRule>
 
         <AttributeRule attributeID="eduPersonAffiliation">
             <PermitValueRule xsi:type="OR">
-                <Rule ignoreCase="true" value="faculty" xsi:type="Value" />
-                <Rule ignoreCase="true" value="student" xsi:type="Value" />
-                <Rule ignoreCase="true" value="staff" xsi:type="Value" />
-                <Rule ignoreCase="true" value="alum" xsi:type="Value" />
-                <Rule ignoreCase="true" value="member" xsi:type="Value" />
-                <Rule ignoreCase="true" value="affiliate" xsi:type="Value" />
-                <Rule ignoreCase="true" value="employee" xsi:type="Value" />
-                <Rule ignoreCase="true" value="library-walk-in" xsi:type="Value" />
+                <Rule caseSenstive="false" xsi:type="Value" value="faculty" />
+                <Rule caseSenstive="false" xsi:type="Value" value="student" />
+                <Rule caseSenstive="false" xsi:type="Value" value="staff" />
+                <Rule caseSenstive="false" xsi:type="Value" value="alum" />
+                <Rule caseSenstive="false" xsi:type="Value" value="member" />
+                <Rule caseSenstive="false" xsi:type="Value" value="affiliate" />
+                <Rule caseSenstive="false" xsi:type="Value" value="employee" />
+                <Rule caseSenstive="false" xsi:type="Value" value="library-walk-in" />
             </PermitValueRule>
         </AttributeRule>
 
