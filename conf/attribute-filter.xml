@@ -82,8 +82,8 @@
         <PolicyRequirementRule xsi:type="OR">
             <Rule value="https://sp.rnp.br/cafe" xsi:type="Requester" />
             <Rule value="https://sp.rnp.br/chimarrao" xsi:type="Requester" />
-            <Rule value="https://p1.icpedu.rnp.br/shibboleth-sp2" xsi:type="Requester" />
             <Rule value="https://pessoal.icpedu.rnp.br/shibboleth-sp2" xsi:type="Requester" />
+            <Rule value="https://hmg.pessoal.icpedu.rnp.br/shibboleth-sp2" xsi:type="Requester" />
             <Rule value="https://homolog.eduid.rnp.br/shibboleth-sp2" xsi:type="Requester" />
         </PolicyRequirementRule>
 
