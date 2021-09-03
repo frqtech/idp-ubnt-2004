@@ -52,33 +52,33 @@
 
         <AttributeRule attributeID="brEduAffiliationType">
             <PermitValueRule xsi:type="OR">
-                <Rule caseSenstive="false" xsi:type="Value" value="student" />
-                <Rule caseSenstive="false" xsi:type="Value" value="faculty" />
-                <Rule caseSenstive="false" xsi:type="Value" value="employee" />
-                <Rule caseSenstive="false" xsi:type="Value" value="alum" />
-                <Rule caseSenstive="false" xsi:type="Value" value="other" />
-                <Rule caseSenstive="false" xsi:type="Value" value="position" />
-                <Rule caseSenstive="false" xsi:type="Value" value="scholarshipAwardee" />
+                <Rule xsi:type="Value" value="student" />
+                <Rule xsi:type="Value" value="faculty" />
+                <Rule xsi:type="Value" value="employee" />
+                <Rule xsi:type="Value" value="alum" />
+                <Rule xsi:type="Value" value="other" />
+                <Rule xsi:type="Value" value="position" />
+                <Rule xsi:type="Value" value="scholarshipAwardee" />
             </PermitValueRule>
         </AttributeRule>
 
         <AttributeRule attributeID="eduPersonAffiliation">
             <PermitValueRule xsi:type="OR">
-                <Rule caseSenstive="false" xsi:type="Value" value="faculty" />
-                <Rule caseSenstive="false" xsi:type="Value" value="student" />
-                <Rule caseSenstive="false" xsi:type="Value" value="staff" />
-                <Rule caseSenstive="false" xsi:type="Value" value="alum" />
-                <Rule caseSenstive="false" xsi:type="Value" value="member" />
-                <Rule caseSenstive="false" xsi:type="Value" value="affiliate" />
-                <Rule caseSenstive="false" xsi:type="Value" value="employee" />
-                <Rule caseSenstive="false" xsi:type="Value" value="library-walk-in" />
+                <Rule xsi:type="Value" value="faculty" />
+                <Rule xsi:type="Value" value="student" />
+                <Rule xsi:type="Value" value="staff" />
+                <Rule xsi:type="Value" value="alum" />
+                <Rule xsi:type="Value" value="member" />
+                <Rule xsi:type="Value" value="affiliate" />
+                <Rule xsi:type="Value" value="employee" />
+                <Rule xsi:type="Value" value="library-walk-in" />
             </PermitValueRule>
         </AttributeRule>
 
     </AttributeFilterPolicy>
 
     <AttributeFilterPolicy id="releaseToRNP">
-
+    
         <PolicyRequirementRule xsi:type="OR">
             <Rule value="https://sp.rnp.br/cafe" xsi:type="Requester" />
             <Rule value="https://sp.rnp.br/chimarrao" xsi:type="Requester" />

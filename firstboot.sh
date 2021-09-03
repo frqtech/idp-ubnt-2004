@@ -4,16 +4,15 @@
 #description    Configuration script for CAFe IDP
 #author         Rui Ribeiro - rui.ribeiro@cafe.rnp.br
 #date           2021/05/02
-#version        4.0
+#version        4.0.0
 #
-#changelog      4.0 - 2021/05/02 - Initial version for Ubuntu 20.04.
+#changelog      4.0.0 - 2021/05/02 - Initial version for Ubuntu 20.04.
 
 RET=""
 DEBUG="1"
 F_DEBUG="/root/cafe-firstboot.debug"
-TAG="2004-412-1"
 REPOSITORY="https://raw.githubusercontent.com/frqtech/idp-ubnt-2004/main"
-SRCDIR="/root/shibboleth-identity-provider-4.1.2"
+SRCDIR="/root/shibboleth-identity-provider-4.1.4"
 SHIBDIR="/opt/shibboleth-idp"
 
 function cleanup {
@@ -314,19 +313,19 @@ EOF
        done
    
     # Baixa arquivo remoto e verifica integridade para continuar a instalação
-    wget ${REPOSITORY}/firstboot-complement-$TAG.sh -O /usr/local/sbin/firstboot-complement-$TAG.sh
-    wget ${REPOSITORY}/firstboot-complement-$TAG.md5 -O /usr/local/sbin/firstboot-complement-$TAG.md5
+    wget ${REPOSITORY}/firstboot-complement.sh -O /usr/local/sbin/firstboot-complement.sh
+    wget ${REPOSITORY}/firstboot-complement.md5 -O /usr/local/sbin/firstboot-complement.md5
     cd /usr/local/sbin/
-    md5sum -c /usr/local/sbin/firstboot-complement-$TAG.md5
+    md5sum -c /usr/local/sbin/firstboot-complement.md5
 
        if [ $? -eq "0" ] ; then
         if [ ${DEBUG} -eq 1 ] ; then
-            echo "O arquivo /usr/local/sbin/firstboot-complement-$TAG.sh está integro." | tee -a ${F_DEBUG}
+            echo "O arquivo /usr/local/sbin/firstboot-complement.sh está integro." | tee -a ${F_DEBUG}
         fi
-        . /usr/local/sbin/firstboot-complement-$TAG.sh
+        . /usr/local/sbin/firstboot-complement.sh
     else
         if [ ${DEBUG} -eq 1 ] ; then
-            echo "O arquivo /usr/local/sbin/firstboot-complement-$TAG.sh não está integro." | tee -a ${F_DEBUG}
+            echo "O arquivo /usr/local/sbin/firstboot-complement.sh não está integro." | tee -a ${F_DEBUG}
         fi
         exit 1
        fi
