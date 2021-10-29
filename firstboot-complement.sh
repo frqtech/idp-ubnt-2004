@@ -239,7 +239,7 @@
         wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
         echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
         apt update
-        apt install -y apache2 libapache2-mod-xforward jetty9 rsyslog filebeat
+        apt install -y apache2 libapache2-mod-xforward jetty9 rsyslog filebeat nagios-nrpe-server nagios-plugins
 
 #
 # OPENSSL - arquivo de config
@@ -484,10 +484,113 @@ idp.persistentId.encoding = BASE32
 EOF
 
 #
-# SHIB - Ajuste arquivo de metadados
+# SHIB - idp-metadata.xml
 #
+        echo "" 
+        echo "Configurando idp-metadata.xml"
+        cat > /opt/shibboleth-idp/metadata/idp-metadata.xml <<-EOF
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<EntityDescriptor  xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" entityID="https://${HN}.${HN_DOMAIN}/idp/shibboleth">
+ 
+	<IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.1:protocol urn:mace:shibboleth:1.0">
+ 
+		<Extensions>
+			<shibmd:Scope regexp="false">${DOMAIN}</shibmd:Scope>
+ 
+			<mdui:UIInfo>
+				<mdui:OrganizationName xml:lang="en">${INITIALS} - ${ORGANIZATION}</mdui:OrganizationName>
+				<mdui:DisplayName xml:lang="en">${INITIALS} - ${ORGANIZATION}</mdui:DisplayName>
+				<mdui:OrganizationURL xml:lang="en">http://www.${DOMAIN}/</mdui:OrganizationURL>
+			</mdui:UIInfo>
+ 
+			<md:ContactPerson contactType="technical">
+				<md:SurName>${CONTACT}</md:SurName>
+				<md:EmailAddress>${CONTACTMAIL}</md:EmailAddress>
+			</md:ContactPerson>
+		</Extensions>
+ 
+		<KeyDescriptor>
+			<ds:KeyInfo>
+				<ds:X509Data>
+					<ds:X509Certificate>
+SUBSTITUIR_CONTEUDO_DO_ARQUIVO_DO_CERTIFICADO
+					</ds:X509Certificate>
+				</ds:X509Data>
+			</ds:KeyInfo>
+		</KeyDescriptor>
+ 
+		<ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML1/SOAP/ArtifactResolution" index="1"/>
+		<ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/ArtifactResolution" index="2"/>
+		<!--
+		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/Redirect/SLO"/>
+		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST/SLO"/>
+		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST-SimpleSign/SLO"/>
+		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/SLO"/>
+		-->
+		<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+		<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+		<SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="https://${HN}.${HN_DOMAIN}/idp/profile/Shibboleth/SSO"/>
+		<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST/SSO"/>
+		<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST-SimpleSign/SSO"/>
+		<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/Redirect/SSO"/>
+	</IDPSSODescriptor>
+ 
+	<AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol">
+		
+		<Extensions>
+			<shibmd:Scope regexp="false">${DOMAIN}</shibmd:Scope>
+		</Extensions>
+		
+		<KeyDescriptor>
+			<ds:KeyInfo>
+				<ds:X509Data>
+					<ds:X509Certificate>
+SUBSTITUIR_CONTEUDO_DO_ARQUIVO_DO_CERTIFICADO
+					</ds:X509Certificate>
+				</ds:X509Data>
+			</ds:KeyInfo>
+		</KeyDescriptor>
+		
+		<AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML1/SOAP/AttributeQuery"/>
+		<!-- <AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/AttributeQuery"/> -->
+		<!-- If you uncomment the above you should add urn:oasis:names:tc:SAML:2.0:protocol to the protocolSupportEnumeration above -->
+		
+	</AttributeAuthorityDescriptor>
+</EntityDescriptor>
+EOF
 
-#TODO
+#
+# SHIB - access-control.xml
+#
+        echo "" 
+        echo "Configurando access-control.xml"
+        cat > /opt/shibboleth-idp/conf/access-control.xml <<-EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+
+       default-init-method="initialize"
+       default-destroy-method="destroy">
+
+    <util:map id="shibboleth.AccessControlPolicies">
+
+        <entry key="AccessByIPAddress">
+            <bean id="AccessByIPAddress" parent="shibboleth.IPRangeAccessControl"
+                    p:allowedRanges="#{ {'127.0.0.1/32', '::1/128', '${POLLER}/32'} }" />
+        </entry>
+
+    </util:map>
+
+</beans>
+EOF
 
 #
 # SHIB - Personalização layout
@@ -697,6 +800,56 @@ EOF
             /usr/lib/jvm/java-11-amazon-corretto/bin/keytool -import -alias ldap.local -keystore /usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts -file /opt/shibboleth-idp/credentials/ldap-server.crt -storepass changeit
             /usr/lib/jvm/java-11-amazon-corretto/bin/keytool -import -alias ldap.local -keystore /opt/shibboleth-idp/credentials/ldap-server.truststore -file /opt/shibboleth-idp/credentials/ldap-server.crt -storepass changeit
         fi
+
+#
+# RNP - Monitoramento
+#
+        echo "" 
+        echo "Configurando Monitoramento RNP"
+        cat > /etc/nagios/nrpe.cfg <<-EOF
+log_facility=daemon
+debug=0
+pid_file=/run/nagios/nrpe.pid
+server_port=5666
+nrpe_user=nagios
+nrpe_group=nagios
+allowed_hosts=127.0.0.1,::1,${IP},${POLLER}
+dont_blame_nrpe=0
+allow_bash_command_substitution=0
+command_timeout=60
+connection_timeout=300
+disable_syslog=0
+
+## Configuracao de infra do IDP
+command[check_load]=/usr/lib/nagios/plugins/check_load -r -w .40,.35,.30 -c .60,.55,.50
+command[check_sda1]=/usr/lib/nagios/plugins/check_disk -w 20% -c 10% -p /dev/sda1
+command[check_mem]=/usr/lib/nagios/plugins/check_mem
+command[check_uptime]=/usr/lib/nagios/plugins/check_uptime
+command[check_http]=/usr/lib/nagios/plugins/check_tcp -p 80
+command[check_https]=/usr/lib/nagios/plugins/check_tcp -p 443
+ 
+## Configuracao de uso do status page.
+command[check_idp_uptime]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}//idp/status" idpuptime
+command[check_idp_status]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}/idp/status" idpstatus
+command[check_idp_lastmetadata]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}/idp/status" idplastmetadata
+command[check_idp_idpversion]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}/idp/status" idpversion
+command[check_idp_jdkversion]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}/idp/status" jdkversion
+
+include=/etc/nagios/nrpe_local.cfg
+include_dir=/etc/nagios/nrpe.d/
+EOF
+
+        # Download de checks
+        wget ${REPOSITORY}/nagios/check_idp -O /usr/lib/nagios/plugins/check_idp
+        wget ${REPOSITORY}/nagios/check_mem -O /usr/lib/nagios/plugins/check_mem
+        wget ${REPOSITORY}/nagios/check_uptime -O /usr/lib/nagios/plugins/check_uptime
+
+        # Corrige permissões
+        chmod 755 /usr/lib/nagios/plugins/check_idp
+        chmod 755 /usr/lib/nagios/plugins/check_mem
+        chmod 755 /usr/lib/nagios/plugins/check_uptime
+        
+        systemctl restart nagios-nrpe-server.service
 
 #
 # JETTY - Configuração

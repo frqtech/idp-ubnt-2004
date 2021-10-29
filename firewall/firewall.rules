@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Atualizado em 30/06/2021 por Rui Ribeiro - rui.ribeiro@cafe.rnp.br
+# Atualizado em 28/10/2021 por Rui Ribeiro - rui.ribeiro@cafe.rnp.br
 
 # Apaga todas as regras pré-existentes
 iptables -F
@@ -24,6 +24,5 @@ iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
 iptables -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT
 iptables -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
 
-# ntp - servidor de hora
-# descomente a linha a seguir para habilitar o acesso a partir da rede local ao servidor em /etc/ntp.conf
-#iptables -A INPUT -p udp -m udp --dport 123 -j ACCEPT
+#Libera acesso monitoramento
+iptables -A INPUT -p tcp -m tcp --dport 5666 -j ACCEPT
