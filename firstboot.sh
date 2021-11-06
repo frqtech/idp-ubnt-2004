@@ -1,12 +1,14 @@
 #!/bin/bash
 
-#title          firstboot.sh
-#description    Configuration script for CAFe IDP
-#author         Rui Ribeiro - rui.ribeiro@cafe.rnp.br
-#date           2021/05/02
-#version        4.0.0
+#title              firstboot.sh
+#description        Configuration script for CAFe IDP
+#author             Rui Ribeiro - rui.ribeiro@cafe.rnp.br
+#lastchangeauthor   Reinaldo Matushima - reinaldo.matushima@cafe.rnp.br
+#date               2021/10/19
+#version            4.1.0
 #
-#changelog      4.0.0 - 2021/05/02 - Initial version for Ubuntu 20.04.
+#changelog          4.0.0 - 2021/05/02 - Initial version for Ubuntu 20.04.
+#changelog          4.1.0 - 2021/10/19 - Adapting to new IDP layout version.
 
 RET=""
 DEBUG="1"
@@ -104,6 +106,22 @@ function lerOpcoes {
         fi
     done
     RET=$VALOR
+}
+
+function lerURL {
+	ler "$1" "$2"
+	urlvalida=$(echo $RET | egrep '^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]')
+	while [ "$urlvalida" == "" ] ; do
+		echo "ERRO - A URL informada não é valida."
+		ler "$1" "$2"
+		urlvalida=$(echo $RET | egrep '^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]')
+	done
+}
+
+function setProperty {
+	#Based on: https://gist.github.com/kongchen/6748525
+	awk -v pat="^$1 ?=" -v value="$1 = $2" '{ if ($0 ~ pat) print value; else print $0; }' $3 > $3.tmp
+	mv $3.tmp $3
 }
 
 function confirma {

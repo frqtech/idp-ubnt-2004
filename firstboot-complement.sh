@@ -1,21 +1,24 @@
 #!/bin/bash
 
-#title          firstboot-complement-1804-333-1.sh
-#description    Complement script for CAFe IDP firstboot.sh
-#author         Rui Ribeiro - rui.ribeiro@cafe.rnp.br
-#date           2021/05/02
-#version        2.0.0
+#title                  firstboot-complement-1804-333-1.sh
+#description            Complement script for CAFe IDP firstboot.sh
+#author                 Rui Ribeiro - rui.ribeiro@cafe.rnp.br
+#lastchangeauthor       Rui Ribeiro - rui.ribeiro@cafe.rnp.br
+#date                   2021/05/02
+#version                2.2.0
 #
-#changelog      1.0.0 - 2018/10/18 - Initial version for Ubuntu 18.04.
-#changelog      1.0.1 - 2019/07/12 - Adequation of certificate generation considering the new package version. 
-#changelog      1.0.2 - 2019/07/31 - Added SIRTFI pre-configuration and corrected directory permissions.
-#changelog      1.0.2 - 2019/07/31 - Correcao do path do java jre.
-#changelog      1.0.2 - 2019/07/31 - Correcao da permissao do idp.key e idp.crt para 644.
-#changelog      1.0.2 - 2019/07/31 - Added F-Ticks pre-configuration and corrected directory permissions.
-#changelog      1.0.3 - 2020/01/27 - Added scapes for rsyslog.conf file.
-#changelog      1.0.4 - 2020/02/06 - General improvement in rsyslog.conf file.
-#changelog      1.0.4 - 2020/02/06 - General improvement in rsyslog.conf file.
-#changelog      2.0.0 - 2021/05/02 - Initial version for Ubuntu 20.04.
+#changelog              1.0.0 - 2018/10/18 - Initial version for Ubuntu 18.04.
+#changelog              1.0.1 - 2019/07/12 - Adequation of certificate generation considering the new package version. 
+#changelog              1.0.2 - 2019/07/31 - Added SIRTFI pre-configuration and corrected directory permissions.
+#changelog              1.0.2 - 2019/07/31 - Correcao do path do java jre.
+#changelog              1.0.2 - 2019/07/31 - Correcao da permissao do idp.key e idp.crt para 644.
+#changelog              1.0.2 - 2019/07/31 - Added F-Ticks pre-configuration and corrected directory permissions.
+#changelog              1.0.3 - 2020/01/27 - Added scapes for rsyslog.conf file.
+#changelog              1.0.4 - 2020/02/06 - General improvement in rsyslog.conf file.
+#changelog              1.0.4 - 2020/02/06 - General improvement in rsyslog.conf file.
+#changelog              2.0.0 - 2021/05/02 - Initial version for Ubuntu 20.04.
+#changelog              2.1.0 - 2021/10/19 - Changes related to new IDP Layout version.
+#changelog              2.2.0 - 2021/11/05 - General improvement in metadata and monitoring.
 
 #
 # COLETA DE DADOS
@@ -131,14 +134,35 @@
             ler "$MSG" "$CMP"
             confirma "$CMP" "$RET" "$MSG"
             CITY=$RET
-            
-            #MSG="Digite por extenco o nome da Unidade Federativa onde esta sediada a instituicao (ex.: Rio Grande do Sul):"
+
             MSG="Digite a sigla da Unidade Federativa onde esta sediada a instituicao (ex.: RS para Rio Grande do Sul):"
             CMP="Unidade Federativa"
             ler "$MSG" "$CMP"
             confirma "$CMP" "$RET" "$MSG"
-            #STATE=$RET
             UF=$RET
+
+            MSG="Digite o texto a ser exibido para o usuário de forma que ele saiba o que deve preencher para se autenticar (ex.: Seu email @rnp.br):"
+            ler "$MSG" "$CMP"
+            confirma "$CMP" "$RET" "$MSG"
+            MSG_AUTENTICACAO=$RET
+
+            MSG1="Link de recuperação de senha (ex.: https://urlpaginarecuperacaodesenha.instituicao.br):"
+            MSG2="A instituicao possui uma pagina para recuperacao de senha?"
+            CMP="SIM/NAO"
+            OPT1="SIM"
+            OPT2="NAO"
+            lerOpcoes "${MSG1}" "${MSG2}" "${CMP}" "${OPT1}" "${OPT2}"
+            MSG_URL_RECUPERACAO_SENHA_SIM="${RET}"
+
+            if [ ${MSG_URL_RECUPERACAO_SENHA_SIM} -eq 1 ] ; then
+                MSG="Digite a url para a pagina de recuperacao de senha (ex.: https://urlpaginarecuperacaodesenha.instituicao.br):"
+                CMP="URL página recuperacao de senha"
+                lerURL "$MSG" "$CMP"
+                confirma "$CMP" "$RET" "$MSG"
+                MSG_URL_RECUPERACAO_SENHA=$RET
+            else
+                MSG_URL_RECUPERACAO_SENHA=""
+            fi
 
             if [ ${DIRETORIO} -eq 1 ] ; then
                 LDAPATTR="sAMAccountName"
@@ -205,30 +229,32 @@
             echo "### FIRSTBOOT COMPLEMENT - INFORMACOES DE DEBUG ###" | tee -a ${F_DEBUG}
             echo "" | tee -a ${F_DEBUG}
             echo "Variáveis lidas:" | tee -a ${F_DEBUG}
-            echo "DIRETORIO        = ${DIRETORIO}" | tee -a ${F_DEBUG}
-            echo "LDAPADDOMAIN     = ${LDAPADDOMAIN}" | tee -a ${F_DEBUG}
-            echo "LDAPSERVER       = ${LDAPSERVER}" | tee -a ${F_DEBUG}
-            echo "LDAPSERVERPORT   = ${LDAPSERVERPORT}" | tee -a ${F_DEBUG}
-            echo "LDAPSERVERSSL    = ${LDAPSERVERSSL}" | tee -a ${F_DEBUG} 
-            echo "LDAPSERVERSSLUSE = ${LDAPSERVERSSLUSE}" | tee -a ${F_DEBUG}
-            echo "LDAPSERVERPROTO  = ${LDAPSERVERPROTO}" | tee -a ${F_DEBUG}
-            echo "LDAPDN           = ${LDAPDN}" | tee -a ${F_DEBUG}
-            echo "LDAPUSER         = ${LDAPUSER}" | tee -a ${F_DEBUG}
-            echo "LDAPPWD          = ${LDAPPWD}" | tee -a ${F_DEBUG}
-            echo "CONTACT          = ${CONTACT}" | tee -a ${F_DEBUG}
-            echo "CONTACTMAIL      = ${CONTACTMAIL}" | tee -a ${F_DEBUG}
-            echo "ORGANIZATION     = ${ORGANIZATION}" | tee -a ${F_DEBUG}
-            echo "INITIALS         = ${INITIALS}" | tee -a ${F_DEBUG}
-            echo "URL              = ${URL}" | tee -a ${F_DEBUG}
-            echo "DOMAIN           = ${DOMAIN}" | tee -a ${F_DEBUG}
-            echo "OU               = ${OU}" | tee -a ${F_DEBUG}
-            echo "CITY             = ${CITY}" | tee -a ${F_DEBUG}
-            echo "UF               = ${UF}" | tee -a ${F_DEBUG}
-            echo "UFUPPER          = ${UFUPPER}" | tee -a ${F_DEBUG}
-            echo "STATE            = ${STATE}" | tee -a ${F_DEBUG}
-            echo "COMPUTEDIDSALT   = ${COMPUTEDIDSALT}" | tee -a ${F_DEBUG}
-            echo "PERSISTENTDIDSALT= ${PERSISTENTDIDSALT}" | tee -a ${F_DEBUG}
-            echo "FTICKSSALT       = ${FTICKSSALT}" | tee -a ${F_DEBUG}
+            echo "DIRETORIO                 = ${DIRETORIO}" | tee -a ${F_DEBUG}
+            echo "LDAPADDOMAIN              = ${LDAPADDOMAIN}" | tee -a ${F_DEBUG}
+            echo "LDAPSERVER                = ${LDAPSERVER}" | tee -a ${F_DEBUG}
+            echo "LDAPSERVERPORT            = ${LDAPSERVERPORT}" | tee -a ${F_DEBUG}
+            echo "LDAPSERVERSSL             = ${LDAPSERVERSSL}" | tee -a ${F_DEBUG} 
+            echo "LDAPSERVERSSLUSE          = ${LDAPSERVERSSLUSE}" | tee -a ${F_DEBUG}
+            echo "LDAPSERVERPROTO           = ${LDAPSERVERPROTO}" | tee -a ${F_DEBUG}
+            echo "LDAPDN                    = ${LDAPDN}" | tee -a ${F_DEBUG}
+            echo "LDAPUSER                  = ${LDAPUSER}" | tee -a ${F_DEBUG}
+            echo "LDAPPWD                   = ${LDAPPWD}" | tee -a ${F_DEBUG}
+            echo "CONTACT                   = ${CONTACT}" | tee -a ${F_DEBUG}
+            echo "CONTACTMAIL               = ${CONTACTMAIL}" | tee -a ${F_DEBUG}
+            echo "ORGANIZATION              = ${ORGANIZATION}" | tee -a ${F_DEBUG}
+            echo "INITIALS                  = ${INITIALS}" | tee -a ${F_DEBUG}
+            echo "URL                       = ${URL}" | tee -a ${F_DEBUG}
+            echo "DOMAIN                    = ${DOMAIN}" | tee -a ${F_DEBUG}
+            echo "OU                        = ${OU}" | tee -a ${F_DEBUG}
+            echo "CITY                      = ${CITY}" | tee -a ${F_DEBUG}
+            echo "UF                        = ${UF}" | tee -a ${F_DEBUG}
+            echo "UFUPPER                   = ${UFUPPER}" | tee -a ${F_DEBUG}
+            echo "STATE                     = ${STATE}" | tee -a ${F_DEBUG}
+            echo "MSG_AUTENTICACAO          = ${MSG_AUTENTICACAO}" | tee -a ${F_DEBUG}
+            echo "MSG_URL_RECUPERACAO_SENHA = ${MSG_URL_RECUPERACAO_SENHA}" | tee -a ${F_DEBUG}            
+            echo "COMPUTEDIDSALT            = ${COMPUTEDIDSALT}" | tee -a ${F_DEBUG}
+            echo "PERSISTENTDIDSALT         = ${PERSISTENTDIDSALT}" | tee -a ${F_DEBUG}
+            echo "FTICKSSALT                = ${FTICKSSALT}" | tee -a ${F_DEBUG}
         fi
 
 #
@@ -488,75 +514,80 @@ EOF
 #
         echo "" 
         echo "Configurando idp-metadata.xml"
+        cp ${SHIBDIR}/credentials/idp.crt /tmp/idp.crt.tmp
+        sed -i '$ d' /tmp/idp.crt.tmp
+        sed -i 1d /tmp/idp.crt.tmp
+        CRT=`cat /tmp/idp.crt.tmp`
+        rf -rf /tmp/idp.crt.tmp
         cat > /opt/shibboleth-idp/metadata/idp-metadata.xml <<-EOF
 <?xml version="1.0" encoding="UTF-8"?>
  
 <EntityDescriptor  xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" entityID="https://${HN}.${HN_DOMAIN}/idp/shibboleth">
  
-	<IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.1:protocol urn:mace:shibboleth:1.0">
+        <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.1:protocol urn:mace:shibboleth:1.0">
  
-		<Extensions>
-			<shibmd:Scope regexp="false">${DOMAIN}</shibmd:Scope>
+                <Extensions>
+                        <shibmd:Scope regexp="false">${DOMAIN}</shibmd:Scope>
  
-			<mdui:UIInfo>
-				<mdui:OrganizationName xml:lang="en">${INITIALS} - ${ORGANIZATION}</mdui:OrganizationName>
-				<mdui:DisplayName xml:lang="en">${INITIALS} - ${ORGANIZATION}</mdui:DisplayName>
-				<mdui:OrganizationURL xml:lang="en">http://www.${DOMAIN}/</mdui:OrganizationURL>
-			</mdui:UIInfo>
+                        <mdui:UIInfo>
+                                <mdui:OrganizationName xml:lang="en">${INITIALS} - ${ORGANIZATION}</mdui:OrganizationName>
+                                <mdui:DisplayName xml:lang="en">${INITIALS} - ${ORGANIZATION}</mdui:DisplayName>
+                                <mdui:OrganizationURL xml:lang="en">http://www.${DOMAIN}/</mdui:OrganizationURL>
+                        </mdui:UIInfo>
  
-			<md:ContactPerson contactType="technical">
-				<md:SurName>${CONTACT}</md:SurName>
-				<md:EmailAddress>${CONTACTMAIL}</md:EmailAddress>
-			</md:ContactPerson>
-		</Extensions>
+                        <md:ContactPerson contactType="technical">
+                                <md:SurName>${CONTACT}</md:SurName>
+                                <md:EmailAddress>${CONTACTMAIL}</md:EmailAddress>
+                        </md:ContactPerson>
+                </Extensions>
  
-		<KeyDescriptor>
-			<ds:KeyInfo>
-				<ds:X509Data>
-					<ds:X509Certificate>
-SUBSTITUIR_CONTEUDO_DO_ARQUIVO_DO_CERTIFICADO
-					</ds:X509Certificate>
-				</ds:X509Data>
-			</ds:KeyInfo>
-		</KeyDescriptor>
+                <KeyDescriptor>
+                        <ds:KeyInfo>
+                                <ds:X509Data>
+                                        <ds:X509Certificate>
+${CRT}
+                                        </ds:X509Certificate>
+                                        </ds:X509Data>
+                                </ds:KeyInfo>
+                </KeyDescriptor>
  
-		<ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML1/SOAP/ArtifactResolution" index="1"/>
-		<ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/ArtifactResolution" index="2"/>
-		<!--
-		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/Redirect/SLO"/>
-		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST/SLO"/>
-		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST-SimpleSign/SLO"/>
-		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/SLO"/>
-		-->
-		<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
-		<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
-		<SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="https://${HN}.${HN_DOMAIN}/idp/profile/Shibboleth/SSO"/>
-		<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST/SSO"/>
-		<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST-SimpleSign/SSO"/>
-		<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/Redirect/SSO"/>
-	</IDPSSODescriptor>
+                <ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML1/SOAP/ArtifactResolution" index="1"/>
+                <ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/ArtifactResolution" index="2"/>
+                <!--
+                <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/Redirect/SLO"/>
+                <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST/SLO"/>
+                <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST-SimpleSign/SLO"/>
+                <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/SLO"/>
+                -->
+                <NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+                <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+                <SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="https://${HN}.${HN_DOMAIN}/idp/profile/Shibboleth/SSO"/>
+                <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST/SSO"/>
+                <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/POST-SimpleSign/SSO"/>
+                <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://${HN}.${HN_DOMAIN}/idp/profile/SAML2/Redirect/SSO"/>
+        </IDPSSODescriptor>
  
-	<AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol">
-		
-		<Extensions>
-			<shibmd:Scope regexp="false">${DOMAIN}</shibmd:Scope>
-		</Extensions>
-		
-		<KeyDescriptor>
-			<ds:KeyInfo>
-				<ds:X509Data>
-					<ds:X509Certificate>
-SUBSTITUIR_CONTEUDO_DO_ARQUIVO_DO_CERTIFICADO
-					</ds:X509Certificate>
-				</ds:X509Data>
-			</ds:KeyInfo>
-		</KeyDescriptor>
-		
-		<AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML1/SOAP/AttributeQuery"/>
-		<!-- <AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/AttributeQuery"/> -->
-		<!-- If you uncomment the above you should add urn:oasis:names:tc:SAML:2.0:protocol to the protocolSupportEnumeration above -->
-		
-	</AttributeAuthorityDescriptor>
+        <AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol">
+
+                <Extensions>
+                        <shibmd:Scope regexp="false">${DOMAIN}</shibmd:Scope>
+                </Extensions>
+
+                <KeyDescriptor>
+                        <ds:KeyInfo>
+                                <ds:X509Data>
+                                        <ds:X509Certificate>
+${CRT}
+                                        </ds:X509Certificate>
+                                </ds:X509Data>
+                        </ds:KeyInfo>
+                </KeyDescriptor>
+
+                <AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML1/SOAP/AttributeQuery"/>
+                <!-- <AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://${HN}.${HN_DOMAIN}:8443/idp/profile/SAML2/SOAP/AttributeQuery"/> -->
+                <!-- If you uncomment the above you should add urn:oasis:names:tc:SAML:2.0:protocol to the protocolSupportEnumeration above -->
+
+        </AttributeAuthorityDescriptor>
 </EntityDescriptor>
 EOF
 
@@ -595,8 +626,28 @@ EOF
 #
 # SHIB - Personalização layout
 #
+        #Copiando arquivo para personalizacao
+        mkdir /tmp/shib-idp
+        cd /tmp/shib-idp
+        wget ${REPOSITORY}/layout/pacote-personalizacao-layout-4.1.tar.gz -O /tmp/shib-idp/pacote-personalizacao-layout-4.1.tar.gz
+        tar -zxvf /tmp/shib-idp/pacote-personalizacao-layout-4.1.tar.gz
+        mkdir ${SHIBDIR}/edit-webapp/api
+        cp /tmp/shib-idp/pacote-personalizacao-layout-4.1/views/*.vm ${SHIBDIR}/views/
+        cp /tmp/shib-idp/pacote-personalizacao-layout-4.1/views/client-storage/*.vm ${SHIBDIR}/views/client-storage/
+        cp /tmp/shib-idp/pacote-personalizacao-layout-4.1/edit-webapp/css/*.css ${SHIBDIR}/edit-webapp/css/
+        cp -R /tmp/shib-idp/pacote-personalizacao-layout-4.1/edit-webapp/api/* ${SHIBDIR}/edit-webapp/api/
+        cp -R /tmp/shib-idp/pacote-personalizacao-layout-4.1/edit-webapp/images/* ${SHIBDIR}/edit-webapp/images/
+        cp /tmp/shib-idp/pacote-personalizacao-layout-4.1/messages/*.properties ${SHIBDIR}/messages/
 
-#TODO
+        #Configurando mensagens
+        setProperty "idp.login.username.label" "${MSG_AUTENTICACAO}" "${SHIBDIR}/messages/messages_pt_BR.properties"
+        setProperty "idp.url.password.reset" "${MSG_URL_RECUPERACAO_SENHA}" "${SHIBDIR}/messages/messages_pt_BR.properties"
+
+        #Atualizacao do war
+        echo "" 
+        echo "Build/update WAR"
+        ${SHIBDIR}/bin/build.sh \
+        -Didp.target.dir=${SHIBDIR}
 
 #
 # APACHE - config site, modules e certificados - 01-idp.conf
