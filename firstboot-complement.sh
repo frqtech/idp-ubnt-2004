@@ -518,7 +518,7 @@ EOF
         sed -i '$ d' /tmp/idp.crt.tmp
         sed -i 1d /tmp/idp.crt.tmp
         CRT=`cat /tmp/idp.crt.tmp`
-        rf -rf /tmp/idp.crt.tmp
+        rm -rf /tmp/idp.crt.tmp
         cat > /opt/shibboleth-idp/metadata/idp-metadata.xml <<-EOF
 <?xml version="1.0" encoding="UTF-8"?>
  
@@ -632,12 +632,12 @@ EOF
         wget ${REPOSITORY}/layout/pacote-personalizacao-layout-4.1.tar.gz -O /tmp/shib-idp/pacote-personalizacao-layout-4.1.tar.gz
         tar -zxvf /tmp/shib-idp/pacote-personalizacao-layout-4.1.tar.gz
         mkdir ${SHIBDIR}/edit-webapp/api
-        cp /tmp/shib-idp/pacote-personalizacao-layout-4.1/views/*.vm ${SHIBDIR}/views/
-        cp /tmp/shib-idp/pacote-personalizacao-layout-4.1/views/client-storage/*.vm ${SHIBDIR}/views/client-storage/
-        cp /tmp/shib-idp/pacote-personalizacao-layout-4.1/edit-webapp/css/*.css ${SHIBDIR}/edit-webapp/css/
-        cp -R /tmp/shib-idp/pacote-personalizacao-layout-4.1/edit-webapp/api/* ${SHIBDIR}/edit-webapp/api/
-        cp -R /tmp/shib-idp/pacote-personalizacao-layout-4.1/edit-webapp/images/* ${SHIBDIR}/edit-webapp/images/
-        cp /tmp/shib-idp/pacote-personalizacao-layout-4.1/messages/*.properties ${SHIBDIR}/messages/
+        cp /tmp/shib-idp/views/*.vm ${SHIBDIR}/views/
+        cp /tmp/shib-idp/views/client-storage/*.vm ${SHIBDIR}/views/client-storage/
+        cp /tmp/shib-idp/edit-webapp/css/*.css ${SHIBDIR}/edit-webapp/css/
+        cp -R /tmp/shib-idp/edit-webapp/api/* ${SHIBDIR}/edit-webapp/api/
+        cp -R /tmp/shib-idp/edit-webapp/images/* ${SHIBDIR}/edit-webapp/images/
+        cp /tmp/shib-idp/messages/*.properties ${SHIBDIR}/messages/
 
         #Configurando mensagens
         setProperty "idp.login.username.label" "${MSG_AUTENTICACAO}" "${SHIBDIR}/messages/messages_pt_BR.properties"
