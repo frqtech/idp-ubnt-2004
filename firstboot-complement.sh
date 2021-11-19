@@ -250,6 +250,7 @@
             echo "UF                        = ${UF}" | tee -a ${F_DEBUG}
             echo "UFUPPER                   = ${UFUPPER}" | tee -a ${F_DEBUG}
             echo "STATE                     = ${STATE}" | tee -a ${F_DEBUG}
+            echo "POLLER                    = ${POLLER}" | tee -a ${F_DEBUG}
             echo "MSG_AUTENTICACAO          = ${MSG_AUTENTICACAO}" | tee -a ${F_DEBUG}
             echo "MSG_URL_RECUPERACAO_SENHA = ${MSG_URL_RECUPERACAO_SENHA}" | tee -a ${F_DEBUG}            
             echo "COMPUTEDIDSALT            = ${COMPUTEDIDSALT}" | tee -a ${F_DEBUG}
@@ -839,11 +840,36 @@ EOF
 #
 # FAIL2BAN
 #
+        echo "" 
+        echo "Configurando Fail2ban"
+	apt install -y fail2ban
+	cat > /etc/fail2ban/filter.d/shibboleth-idp.conf <<-EOF
+# Fail2Ban filter for Shibboleth IDP
+#
+# Author: rui.ribeiro@cafe.rnp.br
+#
+[INCLUDES]
+before          = common.conf
+
+[Definition]
+_daemon         = jetty
+failregex       = <HOST>.*Login by.*failed
+EOF
+
+	cat > /etc/fail2ban/jail.local <<-EOF
+[shibboleth-idp]
+enabled = true
+filter = shibboleth-idp
+port = all
+banaction = iptables-allports
+logpath = /opt/shibboleth-idp/logs/idp-process.log
+findtime = 300
+maxretry = 5
+EOF
 
 #
 # KEYSTORE - Popular com certificados
 #
-#TODO: Tratar certificados AD
 
         # Se LDAP usa SSL, pega certificado e adiciona no keystore
         if [ ${LDAPSERVERSSL} -eq 1 ] ; then
@@ -899,7 +925,7 @@ EOF
         chmod 755 /usr/lib/nagios/plugins/check_idp
         chmod 755 /usr/lib/nagios/plugins/check_mem
         chmod 755 /usr/lib/nagios/plugins/check_uptime
-        
+
         systemctl restart nagios-nrpe-server.service
 
 #
