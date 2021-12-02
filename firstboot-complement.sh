@@ -616,7 +616,7 @@ EOF
 
         <entry key="AccessByIPAddress">
             <bean id="AccessByIPAddress" parent="shibboleth.IPRangeAccessControl"
-                    p:allowedRanges="#{ {'127.0.0.1/32', '::1/128', '${POLLER}/32'} }" />
+                    p:allowedRanges="#{ {'127.0.0.1/32', '::1/128', '${IP}/32', '${POLLER}/32'} }" />
         </entry>
 
     </util:map>
@@ -906,7 +906,7 @@ command[check_http]=/usr/lib/nagios/plugins/check_tcp -p 80
 command[check_https]=/usr/lib/nagios/plugins/check_tcp -p 443
  
 ## Configuracao de uso do status page.
-command[check_idp_uptime]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}//idp/status" idpuptime
+command[check_idp_uptime]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}/idp/status" idpuptime
 command[check_idp_status]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}/idp/status" idpstatus
 command[check_idp_lastmetadata]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}/idp/status" idplastmetadata
 command[check_idp_idpversion]=/usr/lib/nagios/plugins/check_idp "https://${HN}.${HN_DOMAIN}/idp/status" idpversion

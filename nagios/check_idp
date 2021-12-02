@@ -105,18 +105,19 @@ function getJdkVersion {
 
 }
 
-function getLdapBindStatus {
-
-    LDAP_URL=`grep "^idp.authn.LDAP.ldapURL" /opt/shibboleth-idp/conf/ldap.properties | awk '{ print $3}'`
-    LDAP_BIND_DN=`grep "^idp.authn.LDAP.bindDN" /opt/shibboleth-idp/conf/ldap.properties | awk '{ print $3}'`
-    LDAP_PWD=`grep "^idp.authn.LDAP.bindDNCredential" /opt/shibboleth-idp/credentials/secrets.properties | awk '{ print $3 }'`
-    LDAP_BIND=`ldapwhoami -H "${LDAP_URL}" -D "${LDAP_BIND_DN}" -w "${LDAP_PWD}"`
-    if [ $? -eq "0" ] ; then
-        echo "OK - Bind realizado com sucesso no LDAP."
-    else
-        echo "ERRO - Falha ao realizar bind no LDAP."
-    fi
-}
+# function getLdapBindStatus {
+#
+#     LDAP_URL=`grep "^idp.authn.LDAP.ldapURL" /opt/shibboleth-idp/conf/ldap.properties | awk '{ print $3}'`
+#     LDAP_BIND_DN=`grep "^idp.authn.LDAP.bindDN" /opt/shibboleth-idp/conf/ldap.properties | awk '{ print $3}'`
+#     LDAP_PWD=`grep "^idp.authn.LDAP.bindDNCredential" /opt/shibboleth-idp/credentials/secrets.properties | awk '{ print $3 }'`
+#     LDAP_BIND=`ldapwhoami -H "${LDAP_URL}" -D "${LDAP_BIND_DN}" -w "${LDAP_PWD}"`
+#     if [ $? -eq "0" ] ; then
+#         echo "OK - Bind realizado com sucesso no LDAP."
+#     else
+#         echo "ERRO - Falha ao realizar bind no LDAP."
+#     fi
+#
+# }
 
 function getOsCores {
 
@@ -166,7 +167,7 @@ function getAll {
     getIdpVersion
     getIdpUptime
     getIdpLastMetadataUpdate
-    getLdapBindStatus
+#    getLdapBindStatus
 
 }
 
@@ -185,7 +186,7 @@ function getHelp {
     echo "  idpuptime - tempo transcorrido desde a inicializacao do IDP"
     echo "  idpversion - versao do IDP"
     echo "  jdkversion - versao do JDK"
-    echo "  ldapbindstatus - status do bind no diretorio"
+#    echo "  ldapbindstatus - status do bind no diretorio"
     echo "  oskernelversion - versao do kernel do sistema operacional"
     echo "  oscores - numero de cores disponiveis no servidor"
     echo "  osmemorymax - total de memoria do servidor"
@@ -227,8 +228,8 @@ case ${MODE} in
         getIdpVersion ;;
     jdkversion)
         getJdkVersion ;;
-    ldapbindstatus)
-        getLdapBindStatus ;;
+#    ldapbindstatus)
+#        getLdapBindStatus ;;
     oskernelversion)
         getOsKernelVersion ;;
     oscores)
