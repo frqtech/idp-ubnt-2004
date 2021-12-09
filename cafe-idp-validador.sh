@@ -226,7 +226,7 @@ function main {
         fi
     done
 
-    /usr/lib/nagios/plugins/check_idp https://127.0.0.1/idp/status all | tee -a ${SAIDA}
+    /usr/lib/nagios/plugins/check_idp http://${HOSTN_COL}/idp/status all | tee -a ${SAIDA}
 
     rodape | tee -a ${SAIDA}
     if [ $ERRO -eq 0 ] ; then
