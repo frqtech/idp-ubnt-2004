@@ -7,7 +7,7 @@
 #date               2021/12/08
 #version            4.0.0
 #
-#changelog          4.0.0 - 2021/05/02 - Versão inicial para Shibboleth IDP 4.
+#changelog          4.0.0 - 2021/12/08 - Versão inicial para Shibboleth IDP 4.
 
 
 SAIDA="/root/cafe-homolog-shib4.log"
@@ -120,14 +120,6 @@ function main {
         echo "$MSGIMPED" | tee -a ${SAIDA}
         ERRO="1"
     fi
-  
-    if [ -d /var/www/vazio/ ] ; then 
-        echo "OK - Diretorio vazio existe." | tee -a ${SAIDA}
-    else
-        echo "ERRO - Diretorio vazio nao existe." | tee -a ${SAIDA}
-        echo "$MSGIMPED" | tee -a ${SAIDA}
-        ERRO="1"
-    fi
 
     if [ -L /etc/apache2/sites-enabled/01-idp.conf ] ; then 
         echo "OK - Site 01-idp.conf esta ativo." | tee -a ${SAIDA}
@@ -137,22 +129,28 @@ function main {
         ERRO="1"
     fi
   
-    if [ -L /etc/apache2/mods-enabled/ssl.load ] ; then 
-        echo "OK - Modulo ssl esta ativo." | tee -a ${SAIDA}
-    else
-        echo "ERRO - Modulo ssl nao esta ativo." | tee -a ${SAIDA}
-        echo "$MSGIMPED" | tee -a ${SAIDA}
-        ERRO="1"
-    fi
-  
-    if [ -L /etc/apache2/mods-enabled/proxy_ajp.load ] ; then 
-        echo "OK - Modulo proxy_ajp esta ativo." | tee -a ${SAIDA}
-    else
-        echo "ERRO - Modulo proxy_ajp nao esta ativo." | tee -a ${SAIDA}
-        echo "$MSGIMPED" | tee -a ${SAIDA}
-        ERRO="1"
-    fi
-  
+    for i in 'ssl' 'headers' 'proxy_http' ; do
+        MOD_TEST=`a2query -m $i 2> /dev/null`
+        if [ $? -eq "0" ] ; then
+            echo "OK - Modulo $i esta ativo." | tee -a ${SAIDA}
+        else
+            echo "ERRO - Modulo $i nao esta ativo." | tee -a ${SAIDA}
+            echo "$MSGIMPED" | tee -a ${SAIDA}
+            ERRO="1"
+        fi
+    done
+
+    for i in '01-idp' ; do
+        MOD_TEST=`a2query -s $i 2> /dev/null`
+        if [ $? -eq "0" ] ; then
+            echo "OK - Site $i esta ativo." | tee -a ${SAIDA}
+        else
+            echo "ERRO - Site $i nao esta ativo." | tee -a ${SAIDA}
+            echo "$MSGIMPED" | tee -a ${SAIDA}
+            ERRO="1"
+        fi
+    done
+
     APACHE_CONF=`apache2ctl -t 2> /dev/null`
     if [ $? -eq "0" ] ; then
         echo "OK - Sintaxe dos arquivos de configuracao esta correta." | tee -a ${SAIDA}
