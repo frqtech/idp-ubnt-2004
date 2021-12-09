@@ -121,14 +121,6 @@ function main {
         ERRO="1"
     fi
 
-    if [ -L /etc/apache2/sites-enabled/01-idp.conf ] ; then 
-        echo "OK - Site 01-idp.conf esta ativo." | tee -a ${SAIDA}
-    else
-        echo "ERRO - Site 01-idp.conf nao esta ativo." | tee -a ${SAIDA}
-        echo "$MSGIMPED" | tee -a ${SAIDA}
-        ERRO="1"
-    fi
-  
     for i in 'ssl' 'headers' 'proxy_http' ; do
         MOD_TEST=`a2query -m $i 2> /dev/null`
         if [ $? -eq "0" ] ; then
@@ -219,6 +211,22 @@ function main {
     else
         echo "ATENCAO - Falha ao testar bind no LDAP." | tee -a ${SAIDA}
     fi
+
+    echo "" | tee -a ${SAIDA}
+    echo "MONITORAMENTO" | tee -a ${SAIDA}
+    echo "" | tee -a ${SAIDA}
+
+    for i in 'check_idp' 'check_mem' 'check_uptime' ; do
+        if [ -e /usr/lib/nagios/plugins/$1 ] ; then
+            echo "OK - Arquivo /usr/lib/nagios/plugins/$i existe." | tee -a ${SAIDA}
+        else
+            echo "ERRO - Arquivo /usr/lib/nagios/plugins/$i nao existe." | tee -a ${SAIDA}
+            echo "$MSGIMPED" | tee -a ${SAIDA}
+            ERRO="1"
+        fi
+    done
+
+    /usr/lib/nagios/plugins/check_idp https://127.0.0.1/idp/status all | tee -a ${SAIDA}
 
     rodape | tee -a ${SAIDA}
     if [ $ERRO -eq 0 ] ; then
