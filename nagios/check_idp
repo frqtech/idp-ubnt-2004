@@ -105,19 +105,20 @@ function getJdkVersion {
 
 }
 
-# function getLdapBindStatus {
-#
-#     LDAP_URL=`grep "^idp.authn.LDAP.ldapURL" /opt/shibboleth-idp/conf/ldap.properties | awk '{ print $3}'`
-#     LDAP_BIND_DN=`grep "^idp.authn.LDAP.bindDN" /opt/shibboleth-idp/conf/ldap.properties | awk '{ print $3}'`
-#     LDAP_PWD=`grep "^idp.authn.LDAP.bindDNCredential" /opt/shibboleth-idp/credentials/secrets.properties | awk '{ print $3 }'`
-#     LDAP_BIND=`ldapwhoami -H "${LDAP_URL}" -D "${LDAP_BIND_DN}" -w "${LDAP_PWD}"`
-#     if [ $? -eq "0" ] ; then
-#         echo "OK - Bind realizado com sucesso no LDAP."
-#     else
-#         echo "ERRO - Falha ao realizar bind no LDAP."
-#     fi
-#
-# }
+function getLdapBindStatus {
+
+    LDAP_URL=`grep "^idp.authn.LDAP.ldapURL" /opt/shibboleth-idp/conf/ldap.properties | awk '{ print $3}'`
+    LDAP_BIND_DN=`grep "^idp.authn.LDAP.bindDN" /opt/shibboleth-idp/conf/ldap.properties | awk '{ print $3}'`
+    LDAP_PWD=`grep "^idp.authn.LDAP.bindDNCredential" /opt/shibboleth-idp/credentials/secrets.properties | awk '{ print $3 }'`
+
+    LDAP_BIND=`ldapwhoami -H "${LDAP_URL}" -D "${LDAP_BIND_DN}" -w "${LDAP_PWD}"`
+    if [ $? -eq "0" ] ; then
+         echo "OK - Bind realizado com sucesso no LDAP."
+     else
+         echo "ERRO - Falha ao realizar bind no LDAP."
+     fi
+
+}
 
 function getOsCores {
 
