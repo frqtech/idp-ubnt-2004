@@ -14,7 +14,7 @@
 
     <!-- CAFe - uidMD5 -->
     <AttributeDefinition id="uidMD5" xsi:type="ScriptedAttribute" dependencyOnly="true">
-        <InputDataConnector ref="dcLDAP" attributeNames="uid" />
+        <InputDataConnector ref="dcLDAP" attributeNames="%{idp.authn.LDAP.returnAttributes}" />
         <Script>
             <![CDATA[
                 uidMD5.getValues().clear();
