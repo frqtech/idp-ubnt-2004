@@ -661,11 +661,9 @@ EOF
 
     ServerName ${HN}.${HN_DOMAIN}
     ServerAdmin ${CONTACTMAIL}
-    ServerSignature Off
+
     CustomLog /var/log/apache2/${HN}.${HN_DOMAIN}.access.log combined
     ErrorLog /var/log/apache2/${HN}.${HN_DOMAIN}.error.log
-
-    Header always set X-Frame-Options "SAMEORIGIN"
 
     Redirect permanent "/" "https://${HN}.${HN_DOMAIN}/"
 
@@ -675,11 +673,9 @@ EOF
  
     ServerName ${HN}.${HN_DOMAIN}
     ServerAdmin ${CONTACTMAIL}
-    ServerSignature Off
+
     CustomLog /var/log/apache2/${HN}.${HN_DOMAIN}.access.log combined
     ErrorLog /var/log/apache2/${HN}.${HN_DOMAIN}.error.log
-
-    Header always set X-Frame-Options "SAMEORIGIN"
 
     SSLEngine On
     SSLProtocol -all +TLSv1.1 +TLSv1.2
@@ -699,6 +695,7 @@ EOF
 
 </VirtualHost>
 EOF
+        wget ${REPOSITORY}/apache/security.conf -O /etc/apache2/conf-available/security.conf
 
         # Chave e Certificado Apache
         openssl genrsa -out /etc/ssl/private/chave-apache.key 2048
@@ -942,7 +939,9 @@ EOF
         echo "Configurando Jetty"
         sed -i 's/^ReadWritePaths=\/var\/lib\/jetty9\/$/ReadWritePaths=\/var\/lib\/jetty9\/ \/opt\/shibboleth-idp\/credentials\/ \/opt\/shibboleth-idp\/logs\/ \/opt\/shibboleth-idp\/metadata\//' /lib/systemd/system/jetty9.service
         systemctl daemon-reload
+        wget ${REPOSITORY}/jetty/idp.ini -O /etc/jetty9/start.d/idp.ini
         #sed -i 's/^--module=deploy,http,jsp,jstl,websocket,ext,resources$/--module=deploy,http,jsp,jstl,websocket,ext,resources,http-forwarded/' /etc/jetty9/start.ini
+        sed -i '/<param-name>dirAllowed<\/param-name>/!b;n;c\ \ \ \ \ \ <param-value>false<\/param-value>' /etc/jetty9/webdefault.xml
 
         # Corrige permissões
         chown -R jetty:jetty ${SHIBDIR}/{credentials,logs,metadata}
