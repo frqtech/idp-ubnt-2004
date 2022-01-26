@@ -664,6 +664,8 @@ EOF
     CustomLog /var/log/apache2/${HN}.${HN_DOMAIN}.access.log combined
     ErrorLog /var/log/apache2/${HN}.${HN_DOMAIN}.error.log
 
+    Header always set X-Frame-Options "SAMEORIGIN"
+
     Redirect permanent "/" "https://${HN}.${HN_DOMAIN}/"
 
 </VirtualHost>
@@ -672,9 +674,12 @@ EOF
  
     ServerName ${HN}.${HN_DOMAIN}
     ServerAdmin ${CONTACTMAIL}
+    ServerSignature Off
     CustomLog /var/log/apache2/${HN}.${HN_DOMAIN}.access.log combined
     ErrorLog /var/log/apache2/${HN}.${HN_DOMAIN}.error.log
- 
+
+    Header always set X-Frame-Options "SAMEORIGIN"
+
     SSLEngine On
     SSLProtocol -all +TLSv1.1 +TLSv1.2
     SSLCipherSuite ALL:+HIGH:+AES256:+GCM:+RSA:+SHA384:!AES128-SHA256:!AES256-SHA256:!AES128-GCM-SHA256:!AES256-GCM-SHA384:-MEDIUM:-LOW:!SHA:!3DES:!ADH:!MD5:!RC4:!NULL:!DES
@@ -682,7 +687,7 @@ EOF
     SSLCompression off
     SSLCertificateKeyFile /etc/ssl/private/chave-apache.key
     SSLCertificateFile /etc/ssl/certs/certificado-apache.crt
- 
+
     ProxyPreserveHost On
     RequestHeader set X-Forwarded-Proto "https"
     RequestHeader set X-Forwarded-Port 443
@@ -876,6 +881,7 @@ EOF
             openssl s_client -showcerts -connect ${LDAPSERVER}:${LDAPSERVERPORT} < /dev/null 2> /dev/null | openssl x509 -outform PEM > /opt/shibboleth-idp/credentials/ldap-server.crt
             /usr/lib/jvm/java-11-amazon-corretto/bin/keytool -import -alias ldap.local -keystore /usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts -file /opt/shibboleth-idp/credentials/ldap-server.crt -storepass changeit
             /usr/lib/jvm/java-11-amazon-corretto/bin/keytool -import -alias ldap.local -keystore /opt/shibboleth-idp/credentials/ldap-server.truststore -file /opt/shibboleth-idp/credentials/ldap-server.crt -storepass changeit
+            sed -e 's/principalCredential=\"%{idp.attribute.resolver.LDAP.bindDNCredential}\"/principalCredential=\"%{idp.attribute.resolver.LDAP.bindDNCredential}\" trustFile=\"%{idp.attribute.resolver.LDAP.trustCertificates}\"/' /opt/shibboleth-idp/conf/attribute-resolver.xml
         fi
 
 #
@@ -935,7 +941,7 @@ EOF
         echo "Configurando Jetty"
         sed -i 's/^ReadWritePaths=\/var\/lib\/jetty9\/$/ReadWritePaths=\/var\/lib\/jetty9\/ \/opt\/shibboleth-idp\/credentials\/ \/opt\/shibboleth-idp\/logs\/ \/opt\/shibboleth-idp\/metadata\//' /lib/systemd/system/jetty9.service
         systemctl daemon-reload
-        sed -i 's/^--module=deploy,http,jsp,jstl,websocket,ext,resources$/--module=deploy,http,jsp,jstl,websocket,ext,resources,http-forwarded/' /etc/jetty9/start.ini
+        #sed -i 's/^--module=deploy,http,jsp,jstl,websocket,ext,resources$/--module=deploy,http,jsp,jstl,websocket,ext,resources,http-forwarded/' /etc/jetty9/start.ini
 
         # Corrige permissões
         chown -R jetty:jetty ${SHIBDIR}/{credentials,logs,metadata}
