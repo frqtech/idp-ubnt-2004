@@ -19,6 +19,7 @@
 #changelog              2.0.0 - 2021/05/02 - Initial version for Ubuntu 20.04.
 #changelog              2.1.0 - 2021/10/19 - Changes related to new IDP Layout version.
 #changelog              2.2.0 - 2021/11/05 - General improvement in metadata and monitoring.
+#changelog              2.2.1 - 2022/01/26 - Security improvements.
 
 #
 # COLETA DE DADOS
