@@ -656,6 +656,7 @@ EOF
 #
         echo "" 
         echo "Configurando Apache"
+        wget ${REPOSITORY}/apache/security.conf -O /etc/apache2/conf-available/security.conf
         cat > /etc/apache2/sites-available/01-idp.conf <<-EOF
 <VirtualHost ${IP}:80>
 
@@ -695,7 +696,6 @@ EOF
 
 </VirtualHost>
 EOF
-        wget ${REPOSITORY}/apache/security.conf -O /etc/apache2/conf-available/security.conf
 
         # Chave e Certificado Apache
         openssl genrsa -out /etc/ssl/private/chave-apache.key 2048
