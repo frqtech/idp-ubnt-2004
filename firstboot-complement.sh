@@ -877,9 +877,9 @@ EOF
         # Se LDAP usa SSL, pega certificado e adiciona no keystore
         if [ ${LDAPSERVERSSL} -eq 1 ] ; then
             openssl s_client -showcerts -connect ${LDAPSERVER}:${LDAPSERVERPORT} < /dev/null 2> /dev/null | openssl x509 -outform PEM > /opt/shibboleth-idp/credentials/ldap-server.crt
-            /usr/lib/jvm/java-11-amazon-corretto/bin/keytool -import -alias ldap.local -keystore /usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts -file /opt/shibboleth-idp/credentials/ldap-server.crt -storepass changeit
-            /usr/lib/jvm/java-11-amazon-corretto/bin/keytool -import -alias ldap.local -keystore /opt/shibboleth-idp/credentials/ldap-server.truststore -file /opt/shibboleth-idp/credentials/ldap-server.crt -storepass changeit
-            sed -e 's/principalCredential=\"%{idp.attribute.resolver.LDAP.bindDNCredential}\"/principalCredential=\"%{idp.attribute.resolver.LDAP.bindDNCredential}\" trustFile=\"%{idp.attribute.resolver.LDAP.trustCertificates}\"/' /opt/shibboleth-idp/conf/attribute-resolver.xml
+            /usr/lib/jvm/java-11-amazon-corretto/bin/keytool -import -noprompt -alias ldap.local -keystore /usr/lib/jvm/java-11-amazon-corretto/lib/security/cacerts -file /opt/shibboleth-idp/credentials/ldap-server.crt -storepass changeit
+            /usr/lib/jvm/java-11-amazon-corretto/bin/keytool -import -noprompt -alias ldap.local -keystore /opt/shibboleth-idp/credentials/ldap-server.truststore -file /opt/shibboleth-idp/credentials/ldap-server.crt -storepass changeit
+            sed -i -e 's/principalCredential=\"%{idp.attribute.resolver.LDAP.bindDNCredential}\"/principalCredential=\"%{idp.attribute.resolver.LDAP.bindDNCredential}\" trustFile=\"%{idp.attribute.resolver.LDAP.trustCertificates}\"/' /opt/shibboleth-idp/conf/attribute-resolver.xml
         fi
 
 #
