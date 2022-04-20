@@ -4,18 +4,19 @@
 #description        Configuration script for CAFe IDP
 #author             Rui Ribeiro - rui.ribeiro@cafe.rnp.br
 #lastchangeauthor   Rui Ribeiro - rui.ribeiro@cafe.rnp.br
-#date               2022/01/26
-#version            4.1.1
+#date               2022/04/19
+#version            4.1.2
 #
 #changelog          4.0.0 - 2021/05/02 - Initial version for Ubuntu 20.04.
 #changelog          4.1.0 - 2021/10/19 - Adapting to new IDP layout version.
 #changelog          4.1.1 - 2022/01/26 - Shibboleth IDP 4.1.5.
+#changelog          4.1.2 - 2022/04/19 - Shibboleth IDP 4.2.1.
 
 RET=""
 DEBUG="1"
 F_DEBUG="/root/cafe-firstboot.debug"
 REPOSITORY="https://raw.githubusercontent.com/frqtech/idp-ubnt-2004/main"
-SRCDIR="/root/shibboleth-identity-provider-4.1.5"
+SRCDIR="/root/shibboleth-identity-provider-4.2.1"
 SHIBDIR="/opt/shibboleth-idp"
 
 function cleanup {
